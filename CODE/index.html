@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+	</head>
+	<body>
+		<input id="int" />
+		<button onclick="jiexi()">解析</button>
+		<div  id="show"></div>
+	</body>
+	<script>
+		function jiexi(){
+			var txt = document.getElementById('int').value;
+			var l=txt.length;
+			var i=0;
+			var statu=0;
+			var booo=false;
+			for (i=0;i<l;i++){
+				switch (statu){
+					case 0: statu=s_0(txt[i]);break;
+					case 1: statu=s_1(txt[i]);break;
+					case 2: statu=s_2(txt[i]);break;
+					case 3: statu=s_3(txt[i]);break;
+					case -1:break;
+				}
+			}
+			if(statu==3){
+				booo=true;
+			}
+			var show=document.getElementById('show');
+			if(booo){
+				console.log('yes');
+			}else{
+				console.log('no');
+			}
+		}
+		
+		function s_0(txt){
+			if(txt=='a'){
+				return 1;
+			}
+			if(txt=='b'){
+				return 2;
+			}
+			return -1;
+		}
+		function s_1(txt){
+			if(txt=='a'){
+				return 3;
+			}
+			if(txt=='b'){
+				return 2;
+			}
+			return -1;
+		}
+		function s_2(txt){
+			if(txt=='a'){
+				return 1;
+			}
+			if(txt=='b'){
+				return 3;
+			}
+			return -1;
+		}
+		function s_3(txt){
+			if(txt=='a'){
+				return 3;
+			}
+			if(txt=='b'){
+				return 3;
+			}
+			return -1;
+		}
+	</script>
+</html>
