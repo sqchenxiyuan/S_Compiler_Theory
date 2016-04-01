@@ -25,8 +25,12 @@ private:
 	int ST_04(char in);//×¢ÊÍ1
 	int ST_05(char in);//×¢ÊÍ2
 	int ST_06(char in);//×¢ÊÍ3
-	int ST_07(char in);//Ç°·ûºÅ×´Ì¬
-	int ST_08(char in);
+	int ST_07(char in);//×¢ÊÍ½áÊø
+	int ST_08(char in);//µ¥·ûºÅ½áÊø
+	int ST_09(char in);//Ë«Ç°
+	int ST_10(char in);//Ë«
+	int ST_11(char in);//!
+
 	vector<LexErro> m_ErroList;
 
 	void init();//³õÊ¼»¯
@@ -40,5 +44,6 @@ private:
 
 	vector<char> m_shrase;//¶ÌÓï»º´æ
 	void f_outshrase();//Êä³ö»º´æ
+	void f_outtype(int endstatu);//Êä³öÀàĞÍ
 };
 

@@ -13,8 +13,7 @@ n = 012345;
 for (i=1;i<=n; i= i+1)
 { 
 abc=abc+i;
-}
-if(i!=n) n = n+i;
+}if(i!=n) n = n+i;
 if (!n) b = b+c;
 /*The loop ended
 write abc;

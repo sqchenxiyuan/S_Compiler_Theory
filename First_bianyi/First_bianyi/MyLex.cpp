@@ -41,19 +41,35 @@ void CMyLex::Analysis(char *input, char* output)
 			//cout << c <<"--"<<ms<<"--"<<m_statu<< endl;
 			if (m_statu != ms&&m_statu==0||ms==0)//³õÊ¼×´Ì¬Îª0 »òÕß  ±äÎª0  Êä³öµ¥´Ê  
 			{
+				//f_outtype(ms);
 				f_outshrase();
 				m_shrase.clear();
 			}
 			if (c != ' '&&c!='\n')
 			{
-				if (m_statu == 0){
+				if (m_statu == 0)
+				{
 					m_statu = ST(m_statu, c);
-					if (m_statu == 0)
+					if (m_statu == -1)
 					{
-						cout << c << "             erro--------------" <<m_line<< endl;
+						LexErro er;
+						er.line = m_line;
+						er.errowords = c;
+						m_ErroList.push_back(er);
+						m_statu = 0;
 						continue;
 					}
 				}
+				else if (m_statu == -1)
+				{
+					LexErro er;
+					er.line = m_line;
+					er.errowords = c;
+					m_ErroList.push_back(er);
+					m_statu = 0;
+					continue;
+				}
+
 				m_shrase.push_back(c);
 			}
 		}
@@ -62,6 +78,11 @@ void CMyLex::Analysis(char *input, char* output)
 			f_outshrase();
 			cout  << "             erro--------------" << m_line << endl;
 		}
+		for (int i = 0; i <m_ErroList.size(); i++)
+		{
+			cout << m_ErroList.at(i).errowords << "<==>" << m_ErroList.at(i).line << endl;
+		}
+
 		cout << "============================="<<endl;
 		rf.clear();
 		rf.seekg(0);
@@ -89,16 +110,23 @@ int CMyLex::ST(int st, char in)
 	case 6:return ST_06(in);
 	case 7:return ST_07(in);
 	case 8:return ST_08(in);
+	case 9:return ST_09(in);
+	case 10:return ST_10(in);
+	case 11:return ST_11(in);
 	}
+	return -1;
 }
 int CMyLex::ST_00(char in)
 {
 	if (If_ABC(in)) return 1;//Ç°Íù×´Ì¬1   ID
 	if (If_NUB(in) && in != '0') return 2;//Ç°Íù×´Ì¬2   NUB
-	if (in == '0' || If_Sings(in)) return 3;//Ç°Íù×´Ì¬3   NUB
+	if (in == '0' ) return 3;//Ç°Íù×´Ì¬3   NUB
 	if (in == '/') return 4;//Ç°Íù×´Ì¬4   /
-	if (If_FrontSings(in)) return 7;//Ç°Íù×´Ì¬7   Ç°·ûºÅ
-	return 0;
+	if (If_Sings(in)) return 8;//µ¥·ûºÅ½áÊø
+	if (If_FrontSings(in)) return 9;//Ç°Íù×´Ì¬7   Ç°·ûºÅ
+	if (in == '!') return 11;//Ç°Íù×´Ì¬7   Ç°·ûºÅ
+	if (in == ' ' || in == '\n') return 0;
+	return -1;
 }
 int CMyLex::ST_01(char in)
 {
@@ -121,25 +149,37 @@ int CMyLex::ST_04(char in)
 }
 int CMyLex::ST_05(char in)
 {
-	if (in == '*') return 6;//Ç°Íù×´Ì¬56  /**
+	if (in == '*') return 6;//Ç°Íù×´Ì¬6  /**
 	return 5;
 
 }
 int CMyLex::ST_06(char in)
 {
-	if (in == '/') return 3;//ÍË³ö×´Ì¬  /**/
+	if (in == '/') return 7;//Ç°Íù×´Ì¬7  /**/
 	return 5;
 }
 int CMyLex::ST_07(char in)
 {
-	if (in == '=') return 3;//ÍË³ö×´Ì¬  /**/
 	return 0;
 }
 int CMyLex::ST_08(char in)
 {
 	return 0;
 }
-
+int CMyLex::ST_09(char in)
+{
+	if (in == '=')return 10;
+	return 0;
+}
+int CMyLex::ST_10(char in)
+{
+	return 0;
+}
+int CMyLex::ST_11(char in)
+{
+	if (in == '=')return 10;
+	return -1;
+}
 
 
 
@@ -181,8 +221,8 @@ bool CMyLex::If_Sings(char in)
 }
 bool CMyLex::If_FrontSings(char in)
 {
-	char m_sgins[] = { '=', '<', '>', '!' };
-	for (int i = 0; i < 4; i++)
+	char m_sgins[] = { '=', '<', '>' };
+	for (int i = 0; i < 3; i++)
 	{
 		//cout << m_sgins[i] << "--------" << in << endl;
 		if (in == m_sgins[i]) {
@@ -207,4 +247,23 @@ void CMyLex::f_outshrase()
 		}
 	}
 	m_shrase.clear();
+}
+
+void CMyLex::f_outtype(int endstatu)
+{
+	char* a =NULL;
+	switch (endstatu)
+	{
+	case 1:a = "±êÖ¾·û"; break;
+	case 2:a = "ÎÞ·ûºÅÕûÊý"; break;
+	case 3:a = "ÎÞ·ûºÅÕûÊý"; break;
+	case 7:a = "×¢ÊÍ"; break;
+	case 8:a = "µ¥×Ö·û"; break;
+	case 9:a = "µ¥×Ö·û"; break;
+	case 10:a = "Ë«×Ö·û"; break;
+	}
+	if (a!=NULL)
+	{
+		cout << a << "____";
+	}
 }
