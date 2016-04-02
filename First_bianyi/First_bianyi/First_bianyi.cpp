@@ -16,7 +16,7 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	int x;
 	CMyLex lex;
-	lex.Analysis("src/test.txt","");
+	lex.Analysis("src/test.txt","src/out.txt");
 	cin >> x;
 	cin >> x;
 	return 0;

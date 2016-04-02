@@ -14,7 +14,9 @@ CMyLex::~CMyLex()
 void CMyLex::Analysis(char *input, char* output)
 {
 	ifstream rf;
-	rf.open("src/test.txt");
+	ofstream wf;
+	rf.open(input);
+	wf.open(output);
 
 
 	if (!rf)  //读取txt文件
@@ -23,8 +25,6 @@ void CMyLex::Analysis(char *input, char* output)
 	}
 	else
 	{
-		m_shrase;
-		m_shrase.clear();
 		cout << "读取成功" << endl;
 		while (!rf.eof())
 		{
@@ -32,7 +32,6 @@ void CMyLex::Analysis(char *input, char* output)
 			rf.read(&c, 1);
 			int ms = m_statu;
 			m_statu = ST(m_statu, c);
-			//cout << c <<"--"<<ms<<"--"<<m_statu<< endl;
 			if (m_statu != ms&&m_statu==0||ms==0)//初始状态为0 或者  变为0  输出单词  
 			{
 				if (m_shrase.size() != 0)
@@ -43,14 +42,11 @@ void CMyLex::Analysis(char *input, char* output)
 					sh.endstatu = ms;
 					m_ShraseList.push_back(sh);
 					m_statu = 0;
-					//f_outtype(ms);
-					f_outshrase();
 					m_shrase.clear();
 				}
 			}
 			if (c == '\n')
 			{
-				//c = ' ';
 				m_line++;
 			}
 			if (c != ' '&&c!='\n')
@@ -61,68 +57,28 @@ void CMyLex::Analysis(char *input, char* output)
 					m_statu = ST(m_statu, c);
 					if (m_statu == -1)
 					{
-						LexErro er;
-						er.line = m_line;
-						er.word = f_vectorcopy(m_shrase);
-						m_ErroList.push_back(er);
-						m_statu = 0;
-						m_shrase.clear();
+						f_saveError();
 						continue;
 					}
 				}
 				else if (m_statu == -1)
 				{
-					LexErro er;
-					er.line = m_line;
-					er.word = f_vectorcopy(m_shrase);
-					m_ErroList.push_back(er);
-					m_statu = 0;
-					m_shrase.clear();
+					f_saveError();
 					continue;
 				}
 			}
 		}
 		if (m_shrase.size() != 0)
 		{
-			LexErro er;
-			er.line = m_line;
-			er.word = f_vectorcopy(m_shrase);
-			m_ErroList.push_back(er);
-			m_statu = 0;
-			m_shrase.clear();
+			f_saveError();
 		}
-
-
-
-
-
-		cout << "=====================share=====================" << endl;
-		for (int i = 0; i <m_ShraseList.size(); i++)
-		{
-			f_settype(&m_ShraseList.at(i));
-			cout << m_ShraseList.at(i).type << "  <==>  " << m_ShraseList.at(i).endstatu << "  <==>  ";
-			f_outword(&m_ShraseList.at(i).word);
-			cout << endl;
-		}
-		cout << "=====================erro=====================" << endl;
-		for (int i = 0; i <m_ErroList.size(); i++)
-		{
-			f_outword(&m_ErroList.at(i).word);
-			cout << "<==>" << m_ErroList.at(i).line << endl;
-		}
-
-		cout << "=====================原文====================="<<endl;
-		rf.clear();
-		rf.seekg(0);
-		while (!rf.eof())
-		{
-			char c = ' ';
-			rf.read(&c, 1);
-			cout << c;
-		}
+		OutShrase();
+		OutError();
+		OutCode(&rf);
+		SaveFile(output);
 	}
-	cout << m_line;
 	rf.close();
+	wf.close();
 }
 
 int CMyLex::ST(int st, char in)
@@ -215,6 +171,7 @@ void CMyLex::init()
 {
 	m_statu = 0;
 	m_line = 1;
+
 	m_keywords.push_back("if");
 	m_keywords.push_back("else");
 	m_keywords.push_back("for");
@@ -250,9 +207,7 @@ bool CMyLex::If_Sings(char in)
 	char m_sgins[] = { '(', ')', '{', '}', ';', '+', '-', '*' };
 	for (int i = 0; i < 8; i++)
 	{
-		//cout << m_sgins[i] << "--------" << in << endl;
 		if (in == m_sgins[i]) {
-			//cout << "aaaaaaa";
 			return true;
 		}
 	}
@@ -263,9 +218,7 @@ bool CMyLex::If_FrontSings(char in)
 	char m_sgins[] = { '=', '<', '>' };
 	for (int i = 0; i < 3; i++)
 	{
-		//cout << m_sgins[i] << "--------" << in << endl;
 		if (in == m_sgins[i]) {
-			//cout << "aaaaaaa";
 			return true;
 		}
 	}
@@ -274,18 +227,6 @@ bool CMyLex::If_FrontSings(char in)
 
 
 
-void CMyLex::f_outshrase()
-{
-	for (int i = 0; i < m_shrase.size();)
-	{
-		cout << m_shrase.at(i);
-		i++;
-		if (i == m_shrase.size())
-		{
-			cout << endl;
-		}
-	}
-}
 
 void CMyLex::f_settype(LexShrase* Shrase)
 {
@@ -296,9 +237,9 @@ void CMyLex::f_settype(LexShrase* Shrase)
 	case 2:a = "无符号整数"; break;
 	case 3:a = "无符号整数"; break;
 	case 7:a = "注释"; break;
-	case 8:a = "单字符"; break;
-	case 9:a = "单字符"; break;
-	case 10:a = "双字符"; break;
+	case 8:a = "分界符"; break;
+	case 9:a = "运算符"; break;
+	case 10:a ="运算符"; break;
 	}
 
 	if (Shrase->endstatu == 1)
@@ -308,11 +249,12 @@ void CMyLex::f_settype(LexShrase* Shrase)
 		{
 			if (f_ShraseComType(m_keywords.at(i), Shrase->word))
 			{
-				a = m_keywords.at(i);
+				//a = m_keywords.at(i);
+				a = "保留字";
+				break;
 			}
 		}
 	}
-
 	Shrase->type = a;
 }
 bool CMyLex::f_ShraseComType(string type, vector<char>v)
@@ -338,7 +280,15 @@ bool CMyLex::f_ShraseComType(string type, vector<char>v)
 }
 
 
-
+void CMyLex::f_saveError()
+{
+	LexErro er;
+	er.line = m_line;
+	er.word = f_vectorcopy(m_shrase);
+	m_ErroList.push_back(er);
+	m_statu = 0;
+	m_shrase.clear();
+}
 
 
 vector<char> CMyLex::f_vectorcopy(vector<char>v)
@@ -347,6 +297,7 @@ vector<char> CMyLex::f_vectorcopy(vector<char>v)
 	return co;
 }
 
+
 void CMyLex::f_outword(vector<char>* word)
 {
 	int l = word->size();
@@ -354,4 +305,89 @@ void CMyLex::f_outword(vector<char>* word)
 	{
 		cout << word->at(i);
 	}
+}
+
+
+
+
+
+void CMyLex::OutShrase()
+{
+	cout << "=====================SHRASE=====================" << endl;
+	for (int i = 0; i <m_ShraseList.size(); i++)
+	{
+		f_settype(&m_ShraseList.at(i));
+		cout << m_ShraseList.at(i).type;
+		int l = 10 - m_ShraseList.at(i).type.size();
+		for (int j = 0; j < l; j++) cout << " ";
+		cout << "  <==>  ";
+		f_outword(&m_ShraseList.at(i).word);
+		cout << endl;
+	}
+}
+
+void CMyLex::OutError()
+{
+	cout << "=====================ERROR======================" << endl;
+	for (int i = 0; i <m_ErroList.size(); i++)
+	{
+		f_outword(&m_ErroList.at(i).word);
+		int l = 10-m_ErroList.at(i).word.size();
+		for (int j = 0; j < l; j++) cout << " ";
+		cout << "  <==>  " << m_ErroList.at(i).line << endl;
+	}
+}
+void CMyLex::OutCode(ifstream* rf)
+{
+	cout << "=====================原文=======================" << endl;
+	rf->clear();
+	rf->seekg(0);
+	while (!rf->eof())
+	{
+		char c = ' ';
+		rf->read(&c, 1);
+		cout << c;
+	}
+}
+void CMyLex::SaveFile(char* output)
+{
+	OutShrase(output);
+	OutError(output);
+}
+void CMyLex::OutShrase(char* output)
+{
+	ofstream wf;
+	wf.open(output, ios_base::app);
+	wf << "=====================SHRASE=====================" << endl;
+	for (int i = 0; i <m_ShraseList.size(); i++)
+	{
+		f_settype(&m_ShraseList.at(i));
+		wf << m_ShraseList.at(i).type;
+		int l = 10 - m_ShraseList.at(i).type.size();
+		for (int j = 0; j < l; j++) wf << " ";
+		wf << "  <==>  ";
+		for (int j = 0; j < m_ShraseList.at(i).word.size(); j++)
+		{
+			wf << m_ShraseList.at(i).word.at(j);
+		}
+		wf << endl;
+	}
+	wf.close();
+}
+void CMyLex::OutError(char* output)
+{
+	ofstream wf;
+	wf.open(output, ios_base::app);
+	wf << "=====================ERROR======================" << endl;
+	for (int i = 0; i <m_ErroList.size(); i++)
+	{
+		for (int j = 0; j < m_ErroList.at(i).word.size(); j++)
+		{
+			wf << m_ErroList.at(i).word.at(j);
+		}
+		int l = 10 - m_ErroList.at(i).word.size();
+		for (int j = 0; j < l; j++) wf << " ";
+		wf << "  <==>  " << m_ErroList.at(i).line << endl;
+	}
+	wf.close();
 }

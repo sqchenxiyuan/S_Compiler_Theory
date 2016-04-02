@@ -42,6 +42,7 @@ private:
 	int ST_10(char in);//双
 	int ST_11(char in);//!
 
+	vector<char> m_shrase;//短语缓存
 	vector<LexShrase> m_ShraseList;
 	vector<LexErro> m_ErroList;
 
@@ -52,14 +53,22 @@ private:
 	bool If_FrontSings(char in);
 
 
-	vector<char> m_shrase;//短语缓存
-	void f_outshrase();//输出缓存
-
 	void f_settype(LexShrase* Shrase);//设置类型
 	bool f_ShraseComType(string type, vector<char>v);//string与vector<char>对比
+	void f_saveError();
 
 
-	vector<char> f_vectorcopy(vector<char>v);
+	vector<char> f_vectorcopy(vector<char>v);//复制vector
 	void f_outword(vector<char>* word);
+
+
+	//控制台输出
+	void OutShrase();
+	void OutError();
+	void OutCode(ifstream* rf);
+	//文件
+	void SaveFile(char* output);//输出文件
+	void OutShrase(char* output);//向文件输出正确的词
+	void OutError(char* output);//向文件输出错误
 };
 
