@@ -57,21 +57,31 @@ void CMyLex::Analysis(char *input, char* output)
 					m_statu = ST(m_statu, c);
 					if (m_statu == -1)
 					{
-						f_saveError();
+						f_saveError(ms);
 						continue;
 					}
 				}
 				else if (m_statu == -1)
 				{
-					f_saveError();
+					f_saveError(ms);
 					continue;
 				}
 			}
 		}
 		if (m_shrase.size() != 0)
 		{
-			f_saveError();
+			f_saveError(-2);
 		}
+
+		for (int i = 0; i <m_ShraseList.size(); i++)
+		{
+			f_settype(&m_ShraseList.at(i));
+		}
+		for (int i = 0; i <m_ErroList.size(); i++)
+		{
+			f_erromessage(&m_ErroList.at(i));
+		}
+
 		OutShrase();
 		OutError();
 		OutCode(&rf);
@@ -280,15 +290,31 @@ bool CMyLex::f_ShraseComType(string type, vector<char>v)
 }
 
 
-void CMyLex::f_saveError()
+void CMyLex::f_saveError(int laststatu)
 {
 	LexErro er;
 	er.line = m_line;
 	er.word = f_vectorcopy(m_shrase);
+	er.endstatu = laststatu;
 	m_ErroList.push_back(er);
 	m_statu = 0;
 	m_shrase.clear();
 }
+void CMyLex::f_erromessage(LexErro* Erro)
+{
+	string a = "";
+
+	switch (Erro->endstatu)
+	{
+	case -2:a = "结构不全"; break;
+	case 11:a = "错误组合"; break;
+	default:a = "非法字符"; break;
+	}
+
+	Erro->message = a;
+}
+
+
 
 
 vector<char> CMyLex::f_vectorcopy(vector<char>v)
@@ -314,9 +340,9 @@ void CMyLex::f_outword(vector<char>* word)
 void CMyLex::OutShrase()
 {
 	cout << "=====================SHRASE=====================" << endl;
+	cout << "|类型|      <==>  |符号|" << endl;
 	for (int i = 0; i <m_ShraseList.size(); i++)
 	{
-		f_settype(&m_ShraseList.at(i));
 		cout << m_ShraseList.at(i).type;
 		int l = 10 - m_ShraseList.at(i).type.size();
 		for (int j = 0; j < l; j++) cout << " ";
@@ -329,12 +355,23 @@ void CMyLex::OutShrase()
 void CMyLex::OutError()
 {
 	cout << "=====================ERROR======================" << endl;
+	cout << "|类型|      <==>  |行数|  <==> |符号|" << endl;
 	for (int i = 0; i <m_ErroList.size(); i++)
 	{
-		f_outword(&m_ErroList.at(i).word);
-		int l = 10-m_ErroList.at(i).word.size();
+		cout << m_ErroList.at(i).message;
+		int l = 10 - m_ErroList.at(i).message.size();
 		for (int j = 0; j < l; j++) cout << " ";
-		cout << "  <==>  " << m_ErroList.at(i).line << endl;
+
+
+		cout << "  <==>  " << m_ErroList.at(i).line;
+		int m = m_ErroList.at(i).line;
+		int x;
+		for (x = 1; m > 10; x++) m = m / 10;
+		l = 8 - x;
+		for (int j = 0; j < l; j++) cout << " ";
+		cout << "<==>  ";
+		f_outword(&m_ErroList.at(i).word);
+		cout << endl;
 	}
 }
 void CMyLex::OutCode(ifstream* rf)
@@ -359,12 +396,14 @@ void CMyLex::OutShrase(char* output)
 	ofstream wf;
 	wf.open(output, ios_base::app);
 	wf << "=====================SHRASE=====================" << endl;
+	wf << "|类型|      <==>  |符号|" << endl;
 	for (int i = 0; i <m_ShraseList.size(); i++)
 	{
-		f_settype(&m_ShraseList.at(i));
 		wf << m_ShraseList.at(i).type;
 		int l = 10 - m_ShraseList.at(i).type.size();
 		for (int j = 0; j < l; j++) wf << " ";
+
+
 		wf << "  <==>  ";
 		for (int j = 0; j < m_ShraseList.at(i).word.size(); j++)
 		{
@@ -379,15 +418,27 @@ void CMyLex::OutError(char* output)
 	ofstream wf;
 	wf.open(output, ios_base::app);
 	wf << "=====================ERROR======================" << endl;
+	wf << "|类型|      <==>  |行数|  <==> |符号|" << endl;
 	for (int i = 0; i <m_ErroList.size(); i++)
 	{
+		wf << m_ErroList.at(i).message;
+		int l = 10 - m_ErroList.at(i).message.size();
+		for (int j = 0; j < l; j++) wf << " ";
+		wf << "  <==>  " << m_ErroList.at(i).line;
+
+
+		int m = m_ErroList.at(i).line;
+		int x;
+		for (x = 1; m > 10; x++) m = m / 10;
+		l = 5 - x;
+		for (int j = 0; j < l; j++) wf << " ";
+
+		wf << "  <==>  ";
 		for (int j = 0; j < m_ErroList.at(i).word.size(); j++)
 		{
 			wf << m_ErroList.at(i).word.at(j);
 		}
-		int l = 10 - m_ErroList.at(i).word.size();
-		for (int j = 0; j < l; j++) wf << " ";
-		wf << "  <==>  " << m_ErroList.at(i).line << endl;
+		wf << endl;
 	}
 	wf.close();
 }

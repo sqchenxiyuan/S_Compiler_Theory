@@ -2,6 +2,7 @@
 struct LexErro
 {
 	int line = 0;
+	int endstatu = 0;
 	string message;
 	vector<char> word;
 };
@@ -55,8 +56,8 @@ private:
 
 	void f_settype(LexShrase* Shrase);//设置类型
 	bool f_ShraseComType(string type, vector<char>v);//string与vector<char>对比
-	void f_saveError();
-
+	void f_saveError(int laststatu);
+	void f_erromessage(LexErro* Erro);
 
 	vector<char> f_vectorcopy(vector<char>v);//复制vector
 	void f_outword(vector<char>* word);
