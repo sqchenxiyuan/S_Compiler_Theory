@@ -2,7 +2,7 @@
 struct LexErro
 {
 	int line=0;
-	string errowords;
+	vector<char> word;
 	string message;
 };
 
@@ -45,5 +45,7 @@ private:
 	vector<char> m_shrase;//短语缓存
 	void f_outshrase();//输出缓存
 	void f_outtype(int endstatu);//输出类型
+	vector<char> f_vectorcopy(vector<char>v);
+	void f_outword(vector<char>* word);
 };
 

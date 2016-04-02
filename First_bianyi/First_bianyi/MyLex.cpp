@@ -30,7 +30,6 @@ void CMyLex::Analysis(char *input, char* output)
 		{
 			char c=' ';
 			rf.read(&c, 1);
-
 			if (c == '\n')
 			{
 				//c = ' ';
@@ -43,10 +42,12 @@ void CMyLex::Analysis(char *input, char* output)
 			{
 				//f_outtype(ms);
 				f_outshrase();
+				vector<char> test(m_shrase);
 				m_shrase.clear();
 			}
 			if (c != ' '&&c!='\n')
 			{
+				m_shrase.push_back(c);
 				if (m_statu == 0)
 				{
 					m_statu = ST(m_statu, c);
@@ -54,9 +55,10 @@ void CMyLex::Analysis(char *input, char* output)
 					{
 						LexErro er;
 						er.line = m_line;
-						er.errowords = c;
+						er.word = f_vectorcopy(m_shrase);
 						m_ErroList.push_back(er);
 						m_statu = 0;
+						m_shrase.clear();
 						continue;
 					}
 				}
@@ -64,23 +66,27 @@ void CMyLex::Analysis(char *input, char* output)
 				{
 					LexErro er;
 					er.line = m_line;
-					er.errowords = c;
+					er.word = f_vectorcopy(m_shrase);
 					m_ErroList.push_back(er);
 					m_statu = 0;
+					m_shrase.clear();
 					continue;
 				}
-
-				m_shrase.push_back(c);
 			}
 		}
 		if (m_shrase.size() != 0)
 		{
-			f_outshrase();
-			cout  << "             erro--------------" << m_line << endl;
+			LexErro er;
+			er.line = m_line;
+			er.word = f_vectorcopy(m_shrase);
+			m_ErroList.push_back(er);
+			m_statu = 0;
+			m_shrase.clear();
 		}
 		for (int i = 0; i <m_ErroList.size(); i++)
 		{
-			cout << m_ErroList.at(i).errowords << "<==>" << m_ErroList.at(i).line << endl;
+			f_outword(&m_ErroList.at(i).word);
+			cout << "<==>" << m_ErroList.at(i).line << endl;
 		}
 
 		cout << "============================="<<endl;
@@ -246,11 +252,13 @@ void CMyLex::f_outshrase()
 			cout << endl;
 		}
 	}
-	m_shrase.clear();
 }
 
 void CMyLex::f_outtype(int endstatu)
 {
+	char **keywords;
+
+
 	char* a =NULL;
 	switch (endstatu)
 	{
@@ -264,6 +272,21 @@ void CMyLex::f_outtype(int endstatu)
 	}
 	if (a!=NULL)
 	{
-		cout << a << "____";
+		cout << a << "    ";
+	}
+}
+
+vector<char> CMyLex::f_vectorcopy(vector<char>v)
+{
+	vector<char> co(v);
+	return co;
+}
+
+void CMyLex::f_outword(vector<char>* word)
+{
+	int l = word->size();
+	for (int i = 0; i < l; i++)
+	{
+		cout << word->at(i);
 	}
 }
