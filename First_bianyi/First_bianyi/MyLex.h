@@ -1,9 +1,16 @@
 #pragma once
 struct LexErro
 {
-	int line=0;
-	vector<char> word;
+	int line = 0;
 	string message;
+	vector<char> word;
+};
+struct LexShrase
+{
+	int line = 0;
+	int endstatu = 0;
+	string type;
+	vector<char> word;
 };
 
 
@@ -14,8 +21,12 @@ public:
 	~CMyLex();
 	void Analysis(char *input, char* output);//分析接口
 private:
+
+	void init();//初始化
+
 	int m_statu = 0;
 	int m_line = 1;
+	vector<string> m_keywords;
 
 	int ST(int st, char in);
 	int ST_00(char in);//状态函数 
@@ -31,9 +42,8 @@ private:
 	int ST_10(char in);//双
 	int ST_11(char in);//!
 
+	vector<LexShrase> m_ShraseList;
 	vector<LexErro> m_ErroList;
-
-	void init();//初始化
 
 
 	bool If_ABC(char in);
@@ -44,7 +54,11 @@ private:
 
 	vector<char> m_shrase;//短语缓存
 	void f_outshrase();//输出缓存
-	void f_outtype(int endstatu);//输出类型
+
+	void f_settype(LexShrase* Shrase);//设置类型
+	bool f_ShraseComType(string type, vector<char>v);//string与vector<char>对比
+
+
 	vector<char> f_vectorcopy(vector<char>v);
 	void f_outword(vector<char>* word);
 };

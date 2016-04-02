@@ -30,20 +30,28 @@ void CMyLex::Analysis(char *input, char* output)
 		{
 			char c=' ';
 			rf.read(&c, 1);
-			if (c == '\n')
-			{
-				//c = ' ';
-				m_line ++ ;
-			}
 			int ms = m_statu;
 			m_statu = ST(m_statu, c);
 			//cout << c <<"--"<<ms<<"--"<<m_statu<< endl;
 			if (m_statu != ms&&m_statu==0||ms==0)//初始状态为0 或者  变为0  输出单词  
 			{
-				//f_outtype(ms);
-				f_outshrase();
-				vector<char> test(m_shrase);
-				m_shrase.clear();
+				if (m_shrase.size() != 0)
+				{
+					LexShrase sh;
+					sh.line = m_line;
+					sh.word = f_vectorcopy(m_shrase);
+					sh.endstatu = ms;
+					m_ShraseList.push_back(sh);
+					m_statu = 0;
+					//f_outtype(ms);
+					f_outshrase();
+					m_shrase.clear();
+				}
+			}
+			if (c == '\n')
+			{
+				//c = ' ';
+				m_line++;
 			}
 			if (c != ' '&&c!='\n')
 			{
@@ -83,13 +91,27 @@ void CMyLex::Analysis(char *input, char* output)
 			m_statu = 0;
 			m_shrase.clear();
 		}
+
+
+
+
+
+		cout << "=====================share=====================" << endl;
+		for (int i = 0; i <m_ShraseList.size(); i++)
+		{
+			f_settype(&m_ShraseList.at(i));
+			cout << m_ShraseList.at(i).type << "  <==>  " << m_ShraseList.at(i).endstatu << "  <==>  ";
+			f_outword(&m_ShraseList.at(i).word);
+			cout << endl;
+		}
+		cout << "=====================erro=====================" << endl;
 		for (int i = 0; i <m_ErroList.size(); i++)
 		{
 			f_outword(&m_ErroList.at(i).word);
 			cout << "<==>" << m_ErroList.at(i).line << endl;
 		}
 
-		cout << "============================="<<endl;
+		cout << "=====================原文====================="<<endl;
 		rf.clear();
 		rf.seekg(0);
 		while (!rf.eof())
@@ -193,6 +215,17 @@ void CMyLex::init()
 {
 	m_statu = 0;
 	m_line = 1;
+	m_keywords.push_back("if");
+	m_keywords.push_back("else");
+	m_keywords.push_back("for");
+	m_keywords.push_back("while");
+	m_keywords.push_back("do");
+	m_keywords.push_back("int");
+	m_keywords.push_back("write");
+	m_keywords.push_back("read");
+
+
+
 }
 
 
@@ -254,13 +287,10 @@ void CMyLex::f_outshrase()
 	}
 }
 
-void CMyLex::f_outtype(int endstatu)
+void CMyLex::f_settype(LexShrase* Shrase)
 {
-	char **keywords;
-
-
-	char* a =NULL;
-	switch (endstatu)
+	string a="";
+	switch (Shrase->endstatu)
 	{
 	case 1:a = "标志符"; break;
 	case 2:a = "无符号整数"; break;
@@ -270,11 +300,46 @@ void CMyLex::f_outtype(int endstatu)
 	case 9:a = "单字符"; break;
 	case 10:a = "双字符"; break;
 	}
-	if (a!=NULL)
+
+	if (Shrase->endstatu == 1)
 	{
-		cout << a << "    ";
+		int l = m_keywords.size();
+		for (int i = 0; i < l; i++)
+		{
+			if (f_ShraseComType(m_keywords.at(i), Shrase->word))
+			{
+				a = m_keywords.at(i);
+			}
+		}
 	}
+
+	Shrase->type = a;
 }
+bool CMyLex::f_ShraseComType(string type, vector<char>v)
+{
+	bool iftrue = true;
+	if (type.size() == v.size())
+	{
+		int l = v.size();
+		for (int i = 0; i < l; i++)
+		{
+			if (type.at(i) != v.at(i))
+			{
+				iftrue = false;
+				break;
+			}
+		}
+	}
+	else
+	{
+		iftrue = false;
+	}
+	return iftrue;
+}
+
+
+
+
 
 vector<char> CMyLex::f_vectorcopy(vector<char>v)
 {
