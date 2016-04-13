@@ -18,7 +18,7 @@ void CMyLex::Analysis(char *input, char* output)
 	rf.open(input);
 	wf.open(output);
 
-
+	Sleep(500);
 	if (!rf)  //读取txt文件
 	{
 		printf("读取文件失败 \n ");
@@ -385,6 +385,9 @@ void CMyLex::OutCode(ifstream* rf)
 		rf->read(&c, 1);
 		cout << c;
 	}
+
+	cout << endl;
+	cout << "=====================原文=======================" << endl;
 }
 void CMyLex::SaveFile(char* output)
 {

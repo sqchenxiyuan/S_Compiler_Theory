@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <Windows.h>
 using namespace std;
 #include "targetver.h"
 #include "MyLex.h"

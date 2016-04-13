@@ -33,7 +33,7 @@ private:
 	int ST_00(char in);//状态函数 
 	int ST_01(char in);//ID
 	int ST_02(char in);//NUB 
-	int ST_03(char in);//NUB 0//退出状态
+	int ST_03(char in);//NUB 0
 	int ST_04(char in);//注释1
 	int ST_05(char in);//注释2
 	int ST_06(char in);//注释3
@@ -47,7 +47,7 @@ private:
 	vector<LexShrase> m_ShraseList;
 	vector<LexErro> m_ErroList;
 
-
+	//判断
 	bool If_ABC(char in);
 	bool If_NUB(char in);
 	bool If_Sings(char in);
@@ -56,11 +56,11 @@ private:
 
 	void f_settype(LexShrase* Shrase);//设置类型
 	bool f_ShraseComType(string type, vector<char>v);//string与vector<char>对比
-	void f_saveError(int laststatu);
-	void f_erromessage(LexErro* Erro);
+	void f_saveError(int laststatu);//保存错误信息
+	void f_erromessage(LexErro* Erro);//通过ERROR信息，给予ERROR错误提示
 
 	vector<char> f_vectorcopy(vector<char>v);//复制vector
-	void f_outword(vector<char>* word);
+	void f_outword(vector<char>* word);//输出一个Vector中的符号
 
 
 	//控制台输出
