@@ -54,7 +54,7 @@ void CMyLex::Analysis(char *input, char* output)
 				m_shrase.push_back(c);
 				if (m_statu == 0)
 				{
-					m_statu = ST(m_statu, c);
+					m_statu = ST(m_statu, c);//前一状态结束,再次执行,判断是否为非法符号
 					if (m_statu == -1)
 					{
 						f_saveError(ms);
@@ -182,6 +182,7 @@ void CMyLex::init()
 	m_statu = 0;
 	m_line = 1;
 
+	//加载保留字列表
 	m_keywords.push_back("if");
 	m_keywords.push_back("else");
 	m_keywords.push_back("for");
@@ -267,6 +268,7 @@ void CMyLex::f_settype(LexShrase* Shrase)
 	}
 	Shrase->type = a;
 }
+
 bool CMyLex::f_ShraseComType(string type, vector<char>v)
 {
 	bool iftrue = true;
