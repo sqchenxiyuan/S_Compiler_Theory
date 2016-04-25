@@ -54,8 +54,16 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		rf.close();
 
+
+
 		//解析
 		lex.Analysis(const_cast<char*>(in.c_str()), const_cast<char*>(out.c_str()),cover);
+
+		CGramAly galy(lex.getShraseList());
+		galy.Analysis();
+
+
+
 
 		cout << "是否还需检测另一文件(Y/N)：";
 		cin >> x;

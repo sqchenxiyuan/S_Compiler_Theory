@@ -287,10 +287,10 @@ void CMyLex::f_settype(LexShrase* Shrase)
 			if (m_keywords.at(i)==Shrase->word)
 			{
 				a = "±£Áô×Ö";
+				Shrase->LexType = Shrase->word;
 				break;
 			}
 		}
-		Shrase->LexType == Shrase->word;
 	}
 	Shrase->type = a;
 
@@ -454,4 +454,9 @@ void CMyLex::OutError(char* output)
 		wf << "<==>  " << m_ErroList.at(i).word << endl;
 	}
 	wf.close();
+}
+
+vector<LexShrase> CMyLex::getShraseList()
+{
+	return m_ShraseList;
 }

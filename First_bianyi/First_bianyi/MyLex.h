@@ -22,6 +22,7 @@ public:
 	CMyLex();
 	~CMyLex();
 	void Analysis(char *input, char* output, bool cover);//分析接口
+	vector<LexShrase> getShraseList();
 private:
 
 	void init();//初始化

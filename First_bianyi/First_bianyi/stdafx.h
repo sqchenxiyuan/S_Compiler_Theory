@@ -17,5 +17,6 @@
 using namespace std;
 #include "targetver.h"
 #include "MyLex.h"
+#include "GramAly.h"
 
 // TODO:  在此处引用程序需要的其他头文件

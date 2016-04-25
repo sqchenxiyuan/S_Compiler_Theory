@@ -24,6 +24,9 @@
     <ClInclude Include="MyLex.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="GramAly.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -33,6 +36,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="MyLex.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GramAly.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
