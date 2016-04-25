@@ -18,13 +18,15 @@ void UI_Head();
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	bool cover= TRUE;
 	char x;
-	CMyLex lex;
 	string in, out;
 
 	while (1)
 	{
 		UI_Head();
+		CMyLex lex;
+		//对输入文件路径验证
 		while (1)
 		{
 			cout << "请输入需要分析的文件名/路径：";
@@ -37,13 +39,27 @@ int _tmain(int argc, _TCHAR* argv[])
 			}
 			cout << "输入文件不存在,";
 		}
+
+		//对输出文件路径验证
 		cout << "请输入存储结果的文件名/路径：";
 		cin >> out;
-		lex.Analysis(const_cast<char*>(in.c_str()), const_cast<char*>(out.c_str()));
+		ifstream rf;
+		rf.open(out.c_str());
+		if (rf)
+		{
+			cout << "输出文件已存在是否继续覆盖？(Y/N)：";
+			char x;
+			cin >> x;
+			if (x == 'N'||x == 'n') cover = FALSE;
+		}
+		rf.close();
+
+		//解析
+		lex.Analysis(const_cast<char*>(in.c_str()), const_cast<char*>(out.c_str()),cover);
 
 		cout << "是否还需检测另一文件(Y/N)：";
 		cin >> x;
-		if (x != 'Y' || x != 'y') break;
+		if (x != 'Y' && x != 'y') break;
 		system("cls");
 	}
 	return 0;

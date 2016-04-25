@@ -11,12 +11,20 @@ CMyLex::~CMyLex()
 {
 }
 
-void CMyLex::Analysis(char *input, char* output)
+void CMyLex::Analysis(char *input, char* output, bool cover)
 {
-	ifstream rf;
-	ofstream wf;
+	ifstream rf;//读取文件
+	ofstream wf;//输出文件
 	rf.open(input);
-	wf.open(output);
+	if (cover)
+	{
+		wf.open(output);
+	}
+	else
+	{
+		wf.open(output, ios_base::app);
+	}
+	wf.close();
 
 	Sleep(500);
 	if (!rf)  //读取txt文件
@@ -26,48 +34,65 @@ void CMyLex::Analysis(char *input, char* output)
 	else
 	{
 		cout << "读取成功" << endl;
+		char c = ' ';
+		rf.read(&c, 1);
 		while (!rf.eof())
 		{
-			char c=' ';
-			rf.read(&c, 1);
-			int ms = m_statu;
+			int last_statu = m_statu;//存储上一个状态，用于判断单词类型，错误来源
 			m_statu = ST(m_statu, c);
-			if (m_statu != ms&&m_statu==0||ms==0)//初始状态为0 或者  变为0  输出单词  
+
+			////正确
+			if (m_statu != last_statu&&m_statu == 0)//初始状态为0 或者  变为0  输出单词  
 			{
-				if (m_shrase.size() != 0)
-				{
 					LexShrase sh;
 					sh.line = m_line;
-					sh.word = f_vectorcopy(m_shrase);
-					sh.endstatu = ms;
+					string word;
+					word.insert(word.begin(), m_shrase.begin(), m_shrase.end());
+					sh.word = word;
+					sh.endstatu = last_statu;
+					f_settype(&sh);
+
 					m_ShraseList.push_back(sh);
+
 					m_statu = 0;
 					m_shrase.clear();
-				}
+					continue;
 			}
+
+			////错误
+			if (m_statu < 0)
+			{
+				if (last_statu == 0)
+				{
+					m_shrase.push_back(c);
+					rf.read(&c, 1);
+				}
+				f_saveError(m_statu);
+				continue;
+			}
+
+
+
 			if (c == '\n')
 			{
 				m_line++;
 			}
+
 			if (c != ' '&&c!='\n')
 			{
 				m_shrase.push_back(c);
-				if (m_statu == 0)
-				{
-					m_statu = ST(m_statu, c);//前一状态结束,再次执行,判断是否为非法符号
-					if (m_statu == -1)
-					{
-						f_saveError(ms);
-						continue;
-					}
-				}
-				else if (m_statu == -1)
-				{
-					f_saveError(ms);
-					continue;
-				}
+				rf.read(&c, 1);
 			}
+			else
+			{
+				rf.read(&c, 1);
+			}
+
+
 		}
+
+
+
 		if (m_shrase.size() != 0)
 		{
 			f_saveError(-2);
@@ -172,7 +197,7 @@ int CMyLex::ST_10(char in)
 int CMyLex::ST_11(char in)
 {
 	if (in == '=')return 10;
-	return -1;
+	return -2;
 }
 
 
@@ -242,15 +267,16 @@ bool CMyLex::If_FrontSings(char in)
 void CMyLex::f_settype(LexShrase* Shrase)
 {
 	string a="";
+	string b = "";
 	switch (Shrase->endstatu)
 	{
-	case 1:a = "标志符"; break;
-	case 2:a = "无符号整数"; break;
-	case 3:a = "无符号整数"; break;
-	case 7:a = "注释"; break;
-	case 8:a = "分界符"; break;
-	case 9:a = "运算符"; break;
-	case 10:a ="运算符"; break;
+	case 1:a = "标志符"; Shrase->LexType ="ID"; break;
+	case 2:a = "无符号整数"; Shrase->LexType="NUM"; break;
+	case 3:a = "无符号整数"; Shrase->LexType = "NUM"; break;
+	case 7:a = "注释"; Shrase->LexType = "NOTES"; break;
+	case 8:a = "分界符"; Shrase->LexType = Shrase->word; break;
+	case 9:a = "运算符"; Shrase->LexType = Shrase->word; break;
+	case 10:a = "运算符"; Shrase->LexType = Shrase->word; break;
 	}
 
 	if (Shrase->endstatu == 1)
@@ -258,15 +284,16 @@ void CMyLex::f_settype(LexShrase* Shrase)
 		int l = m_keywords.size();
 		for (int i = 0; i < l; i++)
 		{
-			if (f_ShraseComType(m_keywords.at(i), Shrase->word))
+			if (m_keywords.at(i)==Shrase->word)
 			{
-				//a = m_keywords.at(i);
 				a = "保留字";
 				break;
 			}
 		}
+		Shrase->LexType == Shrase->word;
 	}
 	Shrase->type = a;
+
 }
 
 bool CMyLex::f_ShraseComType(string type, vector<char>v)
@@ -291,17 +318,19 @@ bool CMyLex::f_ShraseComType(string type, vector<char>v)
 	return iftrue;
 }
 
-
 void CMyLex::f_saveError(int laststatu)
 {
 	LexErro er;
 	er.line = m_line;
-	er.word = f_vectorcopy(m_shrase);
+	string word;
+	word.insert(word.begin(), m_shrase.begin(), m_shrase.end());
+	er.word = word;
 	er.endstatu = laststatu;
 	m_ErroList.push_back(er);
 	m_statu = 0;
 	m_shrase.clear();
 }
+
 void CMyLex::f_erromessage(LexErro* Erro)
 {
 	string a = "";
@@ -309,7 +338,6 @@ void CMyLex::f_erromessage(LexErro* Erro)
 	switch (Erro->endstatu)
 	{
 	case -2:a = "结构不全"; break;
-	case 11:a = "错误组合"; break;
 	default:a = "非法字符"; break;
 	}
 
@@ -317,40 +345,25 @@ void CMyLex::f_erromessage(LexErro* Erro)
 }
 
 
-
-
-vector<char> CMyLex::f_vectorcopy(vector<char>v)
-{
-	vector<char> co(v);
-	return co;
-}
-
-
-void CMyLex::f_outword(vector<char>* word)
-{
-	int l = word->size();
-	for (int i = 0; i < l; i++)
-	{
-		cout << word->at(i);
-	}
-}
-
-
-
-
-
 void CMyLex::OutShrase()
 {
 	cout << "=====================SHRASE=====================" << endl;
-	cout << "|类型|      <==>  |符号|" << endl;
+	cout << "|类型|    <==> |词法分析| <==>  |符号|" << endl;
 	for (int i = 0; i <m_ShraseList.size(); i++)
 	{
 		cout << m_ShraseList.at(i).type;
+
 		int l = 10 - m_ShraseList.at(i).type.size();
 		for (int j = 0; j < l; j++) cout << " ";
-		cout << "  <==>  ";
-		f_outword(&m_ShraseList.at(i).word);
-		cout << endl;
+
+		cout << "  <==>  " << m_ShraseList.at(i).LexType;
+
+		 l = 10 - m_ShraseList.at(i).LexType.size();
+		for (int j = 0; j < l; j++) cout << " ";
+
+
+
+		cout << "  <==>  " << m_ShraseList.at(i).word<<endl;
 	}
 }
 
@@ -371,9 +384,7 @@ void CMyLex::OutError()
 		for (x = 1; m > 10; x++) m = m / 10;
 		l = 8 - x;
 		for (int j = 0; j < l; j++) cout << " ";
-		cout << "<==>  ";
-		f_outword(&m_ErroList.at(i).word);
-		cout << endl;
+		cout << "<==>  " << m_ErroList.at(i).word << endl;
 	}
 }
 void CMyLex::OutCode(ifstream* rf)
@@ -401,20 +412,20 @@ void CMyLex::OutShrase(char* output)
 	ofstream wf;
 	wf.open(output, ios_base::app);
 	wf << "=====================SHRASE=====================" << endl;
-	wf << "|类型|      <==>  |符号|" << endl;
+	wf << "|类型|    <==> |词法分析| <==>  |符号|" << endl;
 	for (int i = 0; i <m_ShraseList.size(); i++)
 	{
 		wf << m_ShraseList.at(i).type;
+
 		int l = 10 - m_ShraseList.at(i).type.size();
 		for (int j = 0; j < l; j++) wf << " ";
 
+		wf << "  <==>  " << m_ShraseList.at(i).LexType;
 
-		wf << "  <==>  ";
-		for (int j = 0; j < m_ShraseList.at(i).word.size(); j++)
-		{
-			wf << m_ShraseList.at(i).word.at(j);
-		}
-		wf << endl;
+		 l = 10 - m_ShraseList.at(i).LexType.size();
+		for (int j = 0; j < l; j++) wf << " ";
+
+		wf << "  <==>  " << m_ShraseList.at(i).word << endl;
 	}
 	wf.close();
 }
@@ -429,21 +440,18 @@ void CMyLex::OutError(char* output)
 		wf << m_ErroList.at(i).message;
 		int l = 10 - m_ErroList.at(i).message.size();
 		for (int j = 0; j < l; j++) wf << " ";
-		wf << "  <==>  " << m_ErroList.at(i).line;
 
+
+		wf << "  <==>  " << m_ErroList.at(i).line;
 
 		int m = m_ErroList.at(i).line;
 		int x;
 		for (x = 1; m > 10; x++) m = m / 10;
-		l = 5 - x;
+
+		l = 8 - x;
 		for (int j = 0; j < l; j++) wf << " ";
 
-		wf << "  <==>  ";
-		for (int j = 0; j < m_ErroList.at(i).word.size(); j++)
-		{
-			wf << m_ErroList.at(i).word.at(j);
-		}
-		wf << endl;
+		wf << "<==>  " << m_ErroList.at(i).word << endl;
 	}
 	wf.close();
 }

@@ -4,14 +4,15 @@ struct LexErro
 	int line = 0;
 	int endstatu = 0;
 	string message;
-	vector<char> word;
+	string word;
 };
 struct LexShrase
 {
 	int line = 0;
 	int endstatu = 0;
 	string type;
-	vector<char> word;
+	string LexType;
+	string word;
 };
 
 
@@ -20,7 +21,7 @@ class CMyLex
 public:
 	CMyLex();
 	~CMyLex();
-	void Analysis(char *input, char* output);//分析接口
+	void Analysis(char *input, char* output, bool cover);//分析接口
 private:
 
 	void init();//初始化
@@ -59,8 +60,7 @@ private:
 	bool f_ShraseComType(string type, vector<char>v);//string与vector<char>对比
 	void f_saveError(int laststatu);//保存错误信息
 
-	vector<char> f_vectorcopy(vector<char>v);//复制vector
-	void f_outword(vector<char>* word);//输出一个Vector中的符号到控制台
+
 
 
 	//控制台输出
