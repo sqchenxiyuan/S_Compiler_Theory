@@ -11,12 +11,19 @@ private:
 	int m_pos=0;//当前读到单词位置
 	vector<string> m_Shrase;
 
+
+	vector<string> FR_D;
+	vector<string> FR_D1;
 	vector<string> FR_E;// = { "if", "while", "for", "wirte", "read", "{", "(", "ID", "NUM" };
-	vector<string> FR_L;//  = { "(", "ID", "NUM" };
+	vector<string> FR_L;//  = { "(", "ID", "NUM",";" };
 	vector<string> FR_M;//  = { "(", "ID", "NUM" };
+	vector<string> FR_N;
+	vector<string> FR_O;
+	vector<string> FR_P;
+	vector<string> FR_Q;
 
-
-	vector<string> FL_B1;//  = { "if", "while", "for", "write", "read", "{", "(", "ID", "NUM", "}", "#" };
+	vector<string> FL_B;//  = { "if", "while", "for", "write", "read", "{", "(", "ID", "NUM", "}"  };
+	vector<string> FL_B1;//  = { "if", "while", "for", "write", "read", "{", "(", "ID", "NUM", "}"};
 	vector<string> FL_D1;//  = { "}", "#" };
 	vector<string> FL_N1;// = { ")", ";", ">", "<", ">=", "<=", "==", "!=" };
 	vector<string> FL_O1;// = { "+", "-", ")", ";", ">", "<", ">=", "<=", "==", "!=" };

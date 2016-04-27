@@ -369,22 +369,29 @@ void CMyLex::OutShrase()
 
 void CMyLex::OutError()
 {
-	cout << "=====================ERROR======================" << endl;
-	cout << "|类型|      <==>  |行数|  <==> |符号|" << endl;
-	for (int i = 0; i <m_ErroList.size(); i++)
+	if (m_ErroList.size() > 0)
 	{
-		cout << m_ErroList.at(i).message;
-		int l = 10 - m_ErroList.at(i).message.size();
-		for (int j = 0; j < l; j++) cout << " ";
+		cout << "=====================ERROR======================" << endl;
+		cout << "|类型|      <==>  |行数|  <==> |符号|" << endl;
+		for (int i = 0; i < m_ErroList.size(); i++)
+		{
+			cout << m_ErroList.at(i).message;
+			int l = 10 - m_ErroList.at(i).message.size();
+			for (int j = 0; j < l; j++) cout << " ";
 
 
-		cout << "  <==>  " << m_ErroList.at(i).line;
-		int m = m_ErroList.at(i).line;
-		int x;
-		for (x = 1; m > 10; x++) m = m / 10;
-		l = 8 - x;
-		for (int j = 0; j < l; j++) cout << " ";
-		cout << "<==>  " << m_ErroList.at(i).word << endl;
+			cout << "  <==>  " << m_ErroList.at(i).line;
+			int m = m_ErroList.at(i).line;
+			int x;
+			for (x = 1; m > 10; x++) m = m / 10;
+			l = 8 - x;
+			for (int j = 0; j < l; j++) cout << " ";
+			cout << "<==>  " << m_ErroList.at(i).word << endl;
+		}
+	}
+	else
+	{
+		cout << "===================NOERROR!!====================" << endl;
 	}
 }
 void CMyLex::OutCode(ifstream* rf)
@@ -433,25 +440,32 @@ void CMyLex::OutError(char* output)
 {
 	ofstream wf;
 	wf.open(output, ios_base::app);
-	wf << "=====================ERROR======================" << endl;
-	wf << "|类型|      <==>  |行数|  <==> |符号|" << endl;
-	for (int i = 0; i <m_ErroList.size(); i++)
+	if (m_ErroList.size() > 0)
 	{
-		wf << m_ErroList.at(i).message;
-		int l = 10 - m_ErroList.at(i).message.size();
-		for (int j = 0; j < l; j++) wf << " ";
+		wf << "=====================ERROR======================" << endl;
+		wf << "|类型|      <==>  |行数|  <==> |符号|" << endl;
+		for (int i = 0; i <m_ErroList.size(); i++)
+		{
+			wf << m_ErroList.at(i).message;
+			int l = 10 - m_ErroList.at(i).message.size();
+			for (int j = 0; j < l; j++) wf << " ";
 
 
-		wf << "  <==>  " << m_ErroList.at(i).line;
+			wf << "  <==>  " << m_ErroList.at(i).line;
 
-		int m = m_ErroList.at(i).line;
-		int x;
-		for (x = 1; m > 10; x++) m = m / 10;
+			int m = m_ErroList.at(i).line;
+			int x;
+			for (x = 1; m > 10; x++) m = m / 10;
 
-		l = 8 - x;
-		for (int j = 0; j < l; j++) wf << " ";
+			l = 8 - x;
+			for (int j = 0; j < l; j++) wf << " ";
 
-		wf << "<==>  " << m_ErroList.at(i).word << endl;
+			wf << "<==>  " << m_ErroList.at(i).word << endl;
+		}
+	}
+	else
+	{
+		wf << "===================NOERROR!!====================" << endl;
 	}
 	wf.close();
 }

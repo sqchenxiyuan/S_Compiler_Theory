@@ -1,7 +1,7 @@
 {
 int a;
 int i;
-int b2;
+int 2b;
 int c
 for (i=1; i <= 10 i=i+1)
 {
