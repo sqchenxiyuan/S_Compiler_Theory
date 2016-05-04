@@ -5,11 +5,7 @@
 CGramAly::CGramAly(vector<LexShrase> Shrases)
 {
 	reset();
-	int l = Shrases.size();
-	for (int i = 0; i < l; i++)
-	{
-		m_Shrase.push_back(Shrases.at(i).LexType);
-	}
+	m_Shrase = Shrases;
 
 
 	string F_1[10] = { "if", "while", "for", "write", "read", "{", "(", "ID", "NUM", ";" };
@@ -66,6 +62,7 @@ CGramAly::~CGramAly()
 {
 }
 
+
 void CGramAly::Analysis()
 {
 	A_programe();
@@ -79,7 +76,7 @@ void CGramAly::reset()
 
 void CGramAly::nextchar()
 {
-	cout << m_Shrase.at(m_pos) << "==" << m_pos << endl;
+	cout << m_Shrase.at(m_pos).LexType << "==" << m_pos << endl;
 	m_pos++;
 	if (m_pos >= m_Shrase.size())
 	{
@@ -88,66 +85,96 @@ void CGramAly::nextchar()
 	}
 	//Sleep(200);
 }
+
+
+void CGramAly::ST_to(string st)
+{
+	if (st == "A") A_programe();
+	else if (st == "B") B_declaration_list();
+	else if (st == "B1")B1_declaration_list();
+	else if (st == "C") C_declaration_stat();
+	else if (st == "D") D_statement_list();
+	else if (st == "D1") D1_statement_list();
+	else if (st == "E") E_statement();
+	else if (st == "F") F_if_stat();
+	else if (st == "G") G_while_stat();
+	else if (st == "H") H_for_stat();
+	else if (st == "I") I_write_stat();
+	else if (st == "J") J_read_stat();
+	else if (st == "K") K_commpound_stat();
+	else if (st == "L") L_expression_stat();
+	else if (st == "M") M_expression();
+	else if (st == "N") N_bool_expr();
+	else if (st == "N1") N1_bool_expr();
+	else if (st == "O") O_additive_expr();
+	else if (st == "O1") O1_additive_expr();
+	else if (st == "P") P_term();
+	else if (st == "P1") P1_term();
+	else if (st == "Q") Q_factor();
+}
+
+
+
 void CGramAly::A_programe()
 {
-	if (m_Shrase.at(m_pos) == "{")
+	if (m_Shrase.at(m_pos).LexType == "{")
 	{
 		nextchar();
-		B_declaration_list();
-		D_statement_list();
-		if (m_Shrase.at(m_pos) == "}") nextchar();
+		ST_to("B");
+		ST_to("D");
+		if (m_Shrase.at(m_pos).LexType == "}") nextchar();
 		else error();
 	}
 	else error();
 }
 void CGramAly::B_declaration_list()
 {
-	if (m_Shrase.at(m_pos)=="int")
+	if (m_Shrase.at(m_pos).LexType=="int")
 	{
-		B1_declaration_list();
+		ST_to("B1");
 	}
-	if (infrfl(m_Shrase.at(m_pos), FL_B)) return;
+	if (infrfl(m_Shrase.at(m_pos).LexType, FL_B)) return;
 	else error();
 }
 void CGramAly::B1_declaration_list()
 {
-	if (m_Shrase.at(m_pos) == "int")
+	if (m_Shrase.at(m_pos).LexType == "int")
 	{
-		C_declaration_stat();
-		B1_declaration_list();
+		ST_to("C");
+		ST_to("B1");
 	}
-	else if (infrfl(m_Shrase.at(m_pos), FL_B1)) return;
+	else if (infrfl(m_Shrase.at(m_pos).LexType, FL_B1)) return;
 	else error();
 }
 void CGramAly::C_declaration_stat()
 {
-	if (m_Shrase.at(m_pos) == "int")
+	if (m_Shrase.at(m_pos).LexType == "int")
 	{
 		nextchar();
-		if (m_Shrase.at(m_pos) == "ID") nextchar();
+		if (m_Shrase.at(m_pos).LexType == "ID") nextchar();
 		else error();
-		if (m_Shrase.at(m_pos) == ";") nextchar();
+		if (m_Shrase.at(m_pos).LexType == ";") nextchar();
 		else error();
 	}
 	else error();
 }
 void CGramAly::D_statement_list()
 {
-	if (infrfl(m_Shrase.at(m_pos), FR_D))
+	if (infrfl(m_Shrase.at(m_pos).LexType, FR_D))
 	{
-		D1_statement_list();
+		ST_to("D1");
 	}
 	else error();
 
 }
 void CGramAly::D1_statement_list()
 {
-	if (infrfl(m_Shrase.at(m_pos), FR_D1))
+	if (infrfl(m_Shrase.at(m_pos).LexType, FR_D1))
 	{
-		E_statement();
-		D1_statement_list();
+		ST_to("E");
+		ST_to("D1");
 	}
-	else if (infrfl(m_Shrase.at(m_pos), FL_D1))
+	else if (infrfl(m_Shrase.at(m_pos).LexType, FL_D1))
 	{
 		return;
 	}
@@ -155,130 +182,130 @@ void CGramAly::D1_statement_list()
 }
 void CGramAly::E_statement()
 {
-	if (m_Shrase.at(m_pos)=="if")
+	if (m_Shrase.at(m_pos).LexType=="if")
 	{
-		F_if_stat();
+		ST_to("F");
 	}
-	else if (m_Shrase.at(m_pos) == "while")
+	else if (m_Shrase.at(m_pos).LexType == "while")
 	{
-		G_while_stat();
+		ST_to("G");
 	}
-	else if (m_Shrase.at(m_pos) == "for")
+	else if (m_Shrase.at(m_pos).LexType == "for")
 	{
-		H_for_stat();
+		ST_to("H");
 	}
-	else if (m_Shrase.at(m_pos) == "write")
+	else if (m_Shrase.at(m_pos).LexType == "write")
 	{
-		I_write_stat();
+		ST_to("I");
 	}
-	else if (m_Shrase.at(m_pos) == "read")
+	else if (m_Shrase.at(m_pos).LexType == "read")
 	{
-		J_read_stat();
+		ST_to("J");
 	}
-	else if (m_Shrase.at(m_pos) == "{")
+	else if (m_Shrase.at(m_pos).LexType == "{")
 	{
-		K_commpound_stat();
+		ST_to("K");
 	}
-	else if (infrfl(m_Shrase.at(m_pos), FR_L))
+	else if (infrfl(m_Shrase.at(m_pos).LexType, FR_L))
 	{
-		L_expression_stat();
+		ST_to("L");
 	}
 	else error();
 }
 void CGramAly::F_if_stat()
 {
-	if (m_Shrase.at(m_pos) == "if")
+	if (m_Shrase.at(m_pos).LexType == "if")
 	{
 		nextchar();
-		if (m_Shrase.at(m_pos) == "(") nextchar();
+		if (m_Shrase.at(m_pos).LexType == "(") nextchar();
 		else error();
-		M_expression();
-		if (m_Shrase.at(m_pos) == ")") nextchar();
+		ST_to("M");
+		if (m_Shrase.at(m_pos).LexType == ")") nextchar();
 		else error();
-		E_statement();
-		if (m_Shrase.at(m_pos) == "else") nextchar();
+		ST_to("E");
+		if (m_Shrase.at(m_pos).LexType == "else") nextchar();
 		else return;
-		E_statement();
+		ST_to("E");
 	}
 	else error();
 }
 void CGramAly::G_while_stat()
 {
-	if (m_Shrase.at(m_pos) == "while")
+	if (m_Shrase.at(m_pos).LexType == "while")
 	{
 		nextchar();
-		if (m_Shrase.at(m_pos) == "(") nextchar();
+		if (m_Shrase.at(m_pos).LexType == "(") nextchar();
 		else error();
-		M_expression();
-		if (m_Shrase.at(m_pos) == ")") nextchar();
+		ST_to("M");
+		if (m_Shrase.at(m_pos).LexType == ")") nextchar();
 		else error();
-		E_statement();
+		ST_to("E");
 	}
 	else error();
 }
 void CGramAly::H_for_stat()
 {
-	if (m_Shrase.at(m_pos) == "for")
+	if (m_Shrase.at(m_pos).LexType == "for")
 	{
 		nextchar();
-		if (m_Shrase.at(m_pos) == "(") nextchar();
+		if (m_Shrase.at(m_pos).LexType == "(") nextchar();
 		else error();
-		M_expression();
-		if (m_Shrase.at(m_pos) == ";") nextchar();
+		ST_to("M");
+		if (m_Shrase.at(m_pos).LexType == ";") nextchar();
 		else error();
-		M_expression();
-		if (m_Shrase.at(m_pos) == ";") nextchar();
+		ST_to("M");
+		if (m_Shrase.at(m_pos).LexType == ";") nextchar();
 		else error();
-		M_expression();
-		if (m_Shrase.at(m_pos) == ")") nextchar();
+		ST_to("M");
+		if (m_Shrase.at(m_pos).LexType == ")") nextchar();
 		else error();
-		E_statement();
+		ST_to("E");
 	}
 	else error();
 }
 void CGramAly::I_write_stat()
 {
-	if (m_Shrase.at(m_pos) == "write")
+	if (m_Shrase.at(m_pos).LexType == "write")
 	{
 		nextchar();
-		M_expression();
-		if (m_Shrase.at(m_pos) == ";") nextchar();
+		ST_to("M");
+		if (m_Shrase.at(m_pos).LexType == ";") nextchar();
 		else error();
 	}
 	else error();
 }
 void CGramAly::J_read_stat()
 {
-	if (m_Shrase.at(m_pos) == "read")
+	if (m_Shrase.at(m_pos).LexType == "read")
 	{
 		nextchar();
-		if (m_Shrase.at(m_pos) == "ID") nextchar();
+		if (m_Shrase.at(m_pos).LexType == "ID") nextchar();
 		else error();
-		if (m_Shrase.at(m_pos) == ";") nextchar();
+		if (m_Shrase.at(m_pos).LexType == ";") nextchar();
 		else error();
 	}
 	else error();
 }
 void CGramAly::K_commpound_stat()
 {
-	if (m_Shrase.at(m_pos) == "{")
+	if (m_Shrase.at(m_pos).LexType == "{")
 	{
 		nextchar();
-		D_statement_list();
-		if (m_Shrase.at(m_pos) == "}") nextchar();
+		ST_to("D");
+		if (m_Shrase.at(m_pos).LexType == "}") nextchar();
 		else error();
 	}
 	else error();
 }
 void CGramAly::L_expression_stat()
 {
-	if (infrfl(m_Shrase.at(m_pos), FR_M))
+	if (infrfl(m_Shrase.at(m_pos).LexType, FR_M))
 	{
-		M_expression();
-		if (m_Shrase.at(m_pos) == ";") nextchar();
+		ST_to("M");
+		if (m_Shrase.at(m_pos).LexType == ";") nextchar();
 		else error();
 	}
-	else if (m_Shrase.at(m_pos) == ";")
+	else if (m_Shrase.at(m_pos).LexType == ";")
 	{ 
 		nextchar();
 	}
@@ -286,130 +313,130 @@ void CGramAly::L_expression_stat()
 }
 void CGramAly::M_expression()
 {
-	if (m_Shrase.at(m_pos + 1) == "="&&m_Shrase.at(m_pos)=="ID")
+	if (m_Shrase.at(m_pos + 1).LexType == "="&&m_Shrase.at(m_pos).LexType=="ID")
 	{
-		if (m_Shrase.at(m_pos) == "ID") nextchar();
+		if (m_Shrase.at(m_pos).LexType == "ID") nextchar();
 		else error();
-		if (m_Shrase.at(m_pos) == "=") nextchar();
+		if (m_Shrase.at(m_pos).LexType == "=") nextchar();
 		else error();
-		N_bool_expr(); 
+		ST_to("N");
 	}
-	else if (infrfl(m_Shrase.at(m_pos), FR_N))
+	else if (infrfl(m_Shrase.at(m_pos).LexType, FR_N))
 	{
-		N_bool_expr();
+		ST_to("N");
 	}
 	else error();
 }
 void CGramAly::N_bool_expr()
 {
-	if (infrfl(m_Shrase.at(m_pos), FR_O))
+	if (infrfl(m_Shrase.at(m_pos).LexType, FR_O))
 	{
-		O_additive_expr();
-		N1_bool_expr();
+		ST_to("O");
+		ST_to("N1");
 	}
 	else error();
 }
 void CGramAly::N1_bool_expr()
 {
-	if (m_Shrase.at(m_pos) == ">")
+	if (m_Shrase.at(m_pos).LexType == ">")
 	{
 		nextchar();
-		O_additive_expr();
+		ST_to("O");
 	}
-	else if (m_Shrase.at(m_pos) == "<")
+	else if (m_Shrase.at(m_pos).LexType == "<")
 	{
 		nextchar();
-		O_additive_expr();
+		ST_to("O");
 	}
-	else if (m_Shrase.at(m_pos) == ">=")
+	else if (m_Shrase.at(m_pos).LexType == ">=")
 	{
 		nextchar();
-		O_additive_expr();
+		ST_to("O");
 	}
-	else if (m_Shrase.at(m_pos) == "<=")
+	else if (m_Shrase.at(m_pos).LexType == "<=")
 	{
 		nextchar();
-		O_additive_expr();
+		ST_to("O");
 	}
-	else if (m_Shrase.at(m_pos) == "==")
+	else if (m_Shrase.at(m_pos).LexType == "==")
 	{
 		nextchar();
-		O_additive_expr();
+		ST_to("O");
 	}
-	else if (m_Shrase.at(m_pos) == "!=")
+	else if (m_Shrase.at(m_pos).LexType == "!=")
 	{
 		nextchar();
-		O_additive_expr();
+		ST_to("O");
 	}
-	else if (infrfl(m_Shrase.at(m_pos), FL_N1)) return;
+	else if (infrfl(m_Shrase.at(m_pos).LexType, FL_N1)) return;
 	else error();
 }
 void CGramAly::O_additive_expr()
 {
-	if (infrfl(m_Shrase.at(m_pos), FR_P))
+	if (infrfl(m_Shrase.at(m_pos).LexType, FR_P))
 	{
-		P_term();
-		O1_additive_expr();
+		ST_to("P");
+		ST_to("O1");
 	}
 	else error();
 }
 void CGramAly::O1_additive_expr()
 {
-	if (m_Shrase.at(m_pos) == "+")
+	if (m_Shrase.at(m_pos).LexType == "+")
 	{
 		nextchar();
-		P_term();
-		O1_additive_expr();
+		ST_to("P");
+		ST_to("O1");
 	}
-	else if (m_Shrase.at(m_pos) == "-")
+	else if (m_Shrase.at(m_pos).LexType == "-")
 	{
 		nextchar();
-		P_term();
-		O1_additive_expr();
+		ST_to("P");
+		ST_to("O1");
 	}
-	else if (infrfl(m_Shrase.at(m_pos), FL_O1)) return;
+	else if (infrfl(m_Shrase.at(m_pos).LexType, FL_O1)) return;
 	else error();
 }
 void CGramAly::P_term()
 {
-	if (infrfl(m_Shrase.at(m_pos), FR_P))
+	if (infrfl(m_Shrase.at(m_pos).LexType, FR_P))
 	{
-		Q_factor();
-		P1_term();
+		ST_to("Q");
+		ST_to("P1");
 	}
 	else error();
 }
 void CGramAly::P1_term()
 {
-	if (m_Shrase.at(m_pos) == "*")
+	if (m_Shrase.at(m_pos).LexType == "*")
 	{
 		nextchar();
-		Q_factor();
-		P1_term();
+		ST_to("Q");
+		ST_to("P1");
 	}
-	else if (m_Shrase.at(m_pos) == "/")
+	else if (m_Shrase.at(m_pos).LexType == "/")
 	{
 		nextchar();
-		Q_factor();
-		P1_term();
+		ST_to("Q");
+		ST_to("P1");
 	}
-	else if (infrfl(m_Shrase.at(m_pos), FL_P1))	return;
+	else if (infrfl(m_Shrase.at(m_pos).LexType, FL_P1))	return;
 	else error();
 }
 void CGramAly::Q_factor()
 {
-	if (m_Shrase.at(m_pos) == "(")
+	if (m_Shrase.at(m_pos).LexType == "(")
 	{
 		nextchar();
-		M_expression();
-		if (m_Shrase.at(m_pos) == ")") nextchar();
+		ST_to("M");
+		if (m_Shrase.at(m_pos).LexType == ")") nextchar();
 		else error();
 	}
-	else if (m_Shrase.at(m_pos) == "ID")
+	else if (m_Shrase.at(m_pos).LexType == "ID")
 	{
 		nextchar();
 	}
-	else if (m_Shrase.at(m_pos) == "NUM")
+	else if (m_Shrase.at(m_pos).LexType == "NUM")
 	{
 		nextchar();
 	}
@@ -429,5 +456,5 @@ bool CGramAly::infrfl(string shr, vector<string> frfl)
 
 void CGramAly::error()
 {
-	cout << "er!!  in     " << m_Shrase.at(m_pos) << endl;
+	cout << "er!!  in     " << m_Shrase.at(m_pos).LexType << endl;
 }

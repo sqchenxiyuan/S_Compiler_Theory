@@ -11,7 +11,7 @@ struct LexShrase
 	int line = 0;
 	int endstatu = 0;
 	string type;
-	string LexType;
+	string LexType;//用于词法分析
 	string word;
 };
 

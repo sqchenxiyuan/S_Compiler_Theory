@@ -9,7 +9,7 @@ public:
 private:
 
 	int m_pos=0;//当前读到单词位置
-	vector<string> m_Shrase;
+	vector<LexShrase> m_Shrase;
 
 
 	vector<string> FR_D;
@@ -33,6 +33,7 @@ private:
 	void reset();//初始化
 	void nextchar();//下一个单词
 
+	void ST_to(string st);
 	void A_programe();//<programe>
 	void B_declaration_list();//<declaration_list>
 	void B1_declaration_list();//<declaration_list_2>

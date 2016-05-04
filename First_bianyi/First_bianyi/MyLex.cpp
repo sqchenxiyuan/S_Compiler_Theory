@@ -72,7 +72,6 @@ void CMyLex::Analysis(char *input, char* output, bool cover)
 			}
 
 
-
 			if (c == '\n')
 			{
 				m_line++;
