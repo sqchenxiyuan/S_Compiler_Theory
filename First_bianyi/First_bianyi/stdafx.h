@@ -14,6 +14,7 @@
 #include <string>
 #include <fstream>
 #include <Windows.h>
+#include <regex> 
 using namespace std;
 #include "targetver.h"
 #include "MyLex.h"

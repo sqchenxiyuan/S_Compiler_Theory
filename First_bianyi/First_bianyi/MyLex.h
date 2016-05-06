@@ -30,6 +30,7 @@ private:
 	int m_statu = 0;
 	int m_line = 1;
 	vector<string> m_keywords;//用于缓存关键词
+	vector<char> m_endwords;
 
 	int ST(int st, char in);//状态分配函数
 	int ST_00(char in);//状态函数 
@@ -54,6 +55,7 @@ private:
 	bool If_NUB(char in);
 	bool If_Sings(char in);
 	bool If_FrontSings(char in);
+	bool IF_Endwords(char in);
 
 
 	void f_settype(LexShrase* Shrase);//通过短语信息，设置短语类型

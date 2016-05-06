@@ -32,8 +32,10 @@ private:
 
 	void reset();//初始化
 	void nextchar();//下一个单词
+	void end(bool ok);//结束输出
 
 	void ST_to(string st);
+	void S_start();
 	void A_programe();//<programe>
 	void B_declaration_list();//<declaration_list>
 	void B1_declaration_list();//<declaration_list_2>
@@ -58,7 +60,7 @@ private:
 	void Q_factor();//<factor>
 
 	bool infrfl(string shr, vector<string>fl);//判断是否在Follow集中
-	void error();
+	void error(int type,string need="");
 
 };
 

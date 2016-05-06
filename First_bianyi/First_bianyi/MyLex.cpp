@@ -13,6 +13,7 @@ CMyLex::~CMyLex()
 
 void CMyLex::Analysis(char *input, char* output, bool cover)
 {
+
 	ifstream rf;//读取文件
 	ofstream wf;//输出文件
 	rf.open(input);
@@ -33,10 +34,23 @@ void CMyLex::Analysis(char *input, char* output, bool cover)
 	}
 	else
 	{
+
 		cout << "读取成功" << endl;
+		vector<char> filestring;
 		char c = ' ';
 		rf.read(&c, 1);
 		while (!rf.eof())
+		{
+			filestring.push_back(c);
+			rf.read(&c, 1);
+		}
+		filestring.push_back(' ');
+		filestring.push_back(' ');
+
+		int i = -1;
+		c = filestring.at(++i);
+		cout << c<<"1232131231231";
+		while (i < filestring.size()-1)
 		{
 			int last_statu = m_statu;//存储上一个状态，用于判断单词类型，错误来源
 			m_statu = ST(m_statu, c);
@@ -44,28 +58,28 @@ void CMyLex::Analysis(char *input, char* output, bool cover)
 			////正确
 			if (m_statu != last_statu&&m_statu == 0)//初始状态为0 或者  变为0  输出单词  
 			{
-					LexShrase sh;
-					sh.line = m_line;
-					string word;
-					word.insert(word.begin(), m_shrase.begin(), m_shrase.end());
-					sh.word = word;
-					sh.endstatu = last_statu;
-					f_settype(&sh);
+				LexShrase sh;
+				sh.line = m_line;
+				string word;
+				word.insert(word.begin(), m_shrase.begin(), m_shrase.end());
+				sh.word = word;
+				sh.endstatu = last_statu;
+				f_settype(&sh);
 
-					m_ShraseList.push_back(sh);
+				m_ShraseList.push_back(sh);
 
-					m_statu = 0;
-					m_shrase.clear();
-					continue;
+				m_statu = 0;
+				m_shrase.clear();
+				continue;
 			}
 
-			////错误
+			//错误
 			if (m_statu < 0)
 			{
 				if (last_statu == 0)
 				{
 					m_shrase.push_back(c);
-					rf.read(&c, 1);
+					c = filestring.at(++i);
 				}
 				f_saveError(m_statu);
 				continue;
@@ -77,21 +91,16 @@ void CMyLex::Analysis(char *input, char* output, bool cover)
 				m_line++;
 			}
 
-			if (c != ' '&&c!='\n')
+			if (c != ' '&&c != '\n'&&c!='\t')
 			{
 				m_shrase.push_back(c);
-				rf.read(&c, 1);
+				c = filestring.at(++i);
 			}
 			else
 			{
-				rf.read(&c, 1);
+				c = filestring.at(++i);
 			}
-
-
 		}
-
-
-
 		if (m_shrase.size() != 0)
 		{
 			f_saveError(-2);
@@ -143,7 +152,7 @@ int CMyLex::ST_00(char in)
 	if (If_Sings(in)) return 8;//单符号结束
 	if (If_FrontSings(in)) return 9;//前往状态7   前符号
 	if (in == '!') return 11;//前往状态7   前符号
-	if (in == ' ' || in == '\n') return 0;
+	if (in == ' ' || in == '\n' || in == '\t') return 0;
 	return -1;
 }
 int CMyLex::ST_01(char in)
@@ -215,11 +224,22 @@ void CMyLex::init()
 	m_keywords.push_back("int");
 	m_keywords.push_back("write");
 	m_keywords.push_back("read");
+	
 
-
-
+	string endword = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ><=!;{}()0123456789+-*/";
+	for (int i = 0; i < endword.size(); i++){
+		m_endwords.push_back(endword.at(i));
+	}
 }
 
+
+bool CMyLex::IF_Endwords(char in)
+{
+	for (int i = 0; i < m_endwords.size(); i++){
+		if (in == m_endwords.at(i)) return true;
+	}
+	return false;
+}
 
 bool CMyLex::If_ABC(char in)
 {
@@ -382,7 +402,7 @@ void CMyLex::OutError()
 			cout << "  <==>  " << m_ErroList.at(i).line;
 			int m = m_ErroList.at(i).line;
 			int x;
-			for (x = 1; m > 10; x++) m = m / 10;
+			for (x = 1; m >= 10; x++) m = m / 10;
 			l = 8 - x;
 			for (int j = 0; j < l; j++) cout << " ";
 			cout << "<==>  " << m_ErroList.at(i).word << endl;
@@ -406,7 +426,6 @@ void CMyLex::OutCode(ifstream* rf)
 	}
 
 	cout << endl;
-	cout << "=====================原文=======================" << endl;
 }
 void CMyLex::SaveFile(char* output)
 {
@@ -454,7 +473,7 @@ void CMyLex::OutError(char* output)
 
 			int m = m_ErroList.at(i).line;
 			int x;
-			for (x = 1; m > 10; x++) m = m / 10;
+			for (x = 1; m >= 10; x++) m = m / 10;
 
 			l = 8 - x;
 			for (int j = 0; j < l; j++) wf << " ";
