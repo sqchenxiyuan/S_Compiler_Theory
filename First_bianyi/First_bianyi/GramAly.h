@@ -1,4 +1,11 @@
 #pragma once
+struct GramShrase
+{
+	int line = -1;
+	string type;
+	string word;
+};
+
 class CGramAly
 {
 public:
@@ -9,30 +16,31 @@ public:
 private:
 
 	int m_pos=0;//当前读到单词位置
-	vector<LexShrase> m_Shrase;
+	vector<GramShrase> m_Shrase;
 
 
-	vector<string> FR_D;
-	vector<string> FR_D1;
-	vector<string> FR_E;// = { "if", "while", "for", "wirte", "read", "{", "(", "ID", "NUM" };
-	vector<string> FR_L;//  = { "(", "ID", "NUM",";" };
-	vector<string> FR_M;//  = { "(", "ID", "NUM" };
-	vector<string> FR_N;
-	vector<string> FR_O;
-	vector<string> FR_P;
-	vector<string> FR_Q;
+	vector<string> FR_D;//{ "if", "while", "for", "write", "read", "{", "(", "ID", "NUM", ";" };
+	vector<string> FR_D1;//{ "if", "while", "for", "write", "read", "{", "(", "ID", "NUM", ";" };
+	vector<string> FR_E;//{ "if", "while", "for", "write", "read", "{", "(", "ID", "NUM", ";" };
+	vector<string> FR_L;//{ "(", "ID", "NUM", ";" };
+	vector<string> FR_M;//{ "(", "ID", "NUM" };
+	vector<string> FR_N;//{ "(", "ID", "NUM" };
+	vector<string> FR_O;//{ "(", "ID", "NUM" };
+	vector<string> FR_P;//{ "(", "ID", "NUM" };
+	vector<string> FR_Q;//{ "(", "ID", "NUM" };
 
-	vector<string> FL_B;//  = { "if", "while", "for", "write", "read", "{", "(", "ID", "NUM", "}"  };
-	vector<string> FL_B1;//  = { "if", "while", "for", "write", "read", "{", "(", "ID", "NUM", "}"};
-	vector<string> FL_D1;//  = { "}", "#" };
-	vector<string> FL_N1;// = { ")", ";", ">", "<", ">=", "<=", "==", "!=" };
-	vector<string> FL_O1;// = { "+", "-", ")", ";", ">", "<", ">=", "<=", "==", "!=" };
-	vector<string> FL_P1;//  = { ";", ")" };
+	vector<string> FL_B;//{ "if", "while", "for", "write", "read", "{", "(", "ID", "NUM", "}" };
+	vector<string> FL_B1;//{ "if", "while", "for", "write", "read", "{", "(", "ID", "NUM", "}" };
+	vector<string> FL_D1;//{ "}" };
+	vector<string> FL_N1;//{ ";", ")" };
+	vector<string> FL_O1;//{ ")", ";", ">", "<", ">=", "<=", "==", "!=" };
+	vector<string> FL_P1;//{ "+", "-", ")", ";", ">", "<", ">=", "<=", "==", "!=" };
 
 
 	void reset();//初始化
 	void nextchar();//下一个单词
 	void end(bool ok);//结束输出
+	void cmpshrase(string cmp);
 
 	void ST_to(string st);
 	void S_start();

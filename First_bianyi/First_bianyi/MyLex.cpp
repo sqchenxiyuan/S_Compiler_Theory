@@ -27,7 +27,7 @@ void CMyLex::Analysis(char *input, char* output, bool cover)
 	}
 	wf.close();
 
-	Sleep(500);
+	//Sleep(500);
 	if (!rf)  //读取txt文件
 	{
 		printf("读取文件失败 \n ");
@@ -49,7 +49,6 @@ void CMyLex::Analysis(char *input, char* output, bool cover)
 
 		int i = -1;
 		c = filestring.at(++i);
-		cout << c<<"1232131231231";
 		while (i < filestring.size()-1)
 		{
 			int last_statu = m_statu;//存储上一个状态，用于判断单词类型，错误来源
@@ -367,7 +366,7 @@ void CMyLex::f_erromessage(LexErro* Erro)
 void CMyLex::OutShrase()
 {
 	cout << "=====================SHRASE=====================" << endl;
-	cout << "|类型|    <==> |词法分析| <==>  |符号|" << endl;
+	cout << "|类型|      <==> |词法分析| <==>  |符号|" << endl;
 	for (int i = 0; i <m_ShraseList.size(); i++)
 	{
 		cout << m_ShraseList.at(i).type;
@@ -391,7 +390,7 @@ void CMyLex::OutError()
 	if (m_ErroList.size() > 0)
 	{
 		cout << "=====================ERROR======================" << endl;
-		cout << "|类型|      <==>  |行数|  <==> |符号|" << endl;
+		cout << "|类型|      <==>  |行数|    <==> |符号|" << endl;
 		for (int i = 0; i < m_ErroList.size(); i++)
 		{
 			cout << m_ErroList.at(i).message;
@@ -437,7 +436,7 @@ void CMyLex::OutShrase(char* output)
 	ofstream wf;
 	wf.open(output, ios_base::app);
 	wf << "=====================SHRASE=====================" << endl;
-	wf << "|类型|    <==> |词法分析| <==>  |符号|" << endl;
+	wf << "|类型|      <==> |词法分析|   <==>  |符号|" << endl;
 	for (int i = 0; i <m_ShraseList.size(); i++)
 	{
 		wf << m_ShraseList.at(i).type;
