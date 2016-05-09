@@ -140,7 +140,7 @@ void CGramAly::A_programe()
 {
 	if (m_Shrase.at(m_pos).type == "{")
 	{
-		nextchar();
+		cmpshrase("{");
 		ST_to("B");
 		ST_to("D");
 		cmpshrase("}");
@@ -170,7 +170,7 @@ void CGramAly::C_declaration_stat()
 {
 	if (m_Shrase.at(m_pos).type == "int")
 	{
-		nextchar();
+		cmpshrase("int");
 		cmpshrase("ID");
 		cmpshrase(";");
 	}
@@ -234,7 +234,7 @@ void CGramAly::F_if_stat()
 {
 	if (m_Shrase.at(m_pos).type == "if")
 	{
-		nextchar();
+		cmpshrase("if");
 		cmpshrase("(");
 		ST_to("M");
 		cmpshrase(")");
@@ -249,7 +249,7 @@ void CGramAly::G_while_stat()
 {
 	if (m_Shrase.at(m_pos).type == "while")
 	{
-		nextchar();
+		cmpshrase("while");
 		cmpshrase("(");
 		ST_to("M");
 		cmpshrase(")");
@@ -261,7 +261,7 @@ void CGramAly::H_for_stat()
 {
 	if (m_Shrase.at(m_pos).type == "for")
 	{
-		nextchar();
+		cmpshrase("for");
 		cmpshrase("(");
 		ST_to("M");
 		cmpshrase(";");
@@ -277,7 +277,7 @@ void CGramAly::I_write_stat()
 {
 	if (m_Shrase.at(m_pos).type == "write")
 	{
-		nextchar();
+		cmpshrase("write");
 		ST_to("M");
 		cmpshrase(";");
 	}
@@ -287,7 +287,7 @@ void CGramAly::J_read_stat()
 {
 	if (m_Shrase.at(m_pos).type == "read")
 	{
-		nextchar();
+		cmpshrase("read");
 		cmpshrase("ID");
 		cmpshrase(";");
 	}
@@ -297,7 +297,7 @@ void CGramAly::K_commpound_stat()
 {
 	if (m_Shrase.at(m_pos).type == "{")
 	{
-		nextchar();
+		cmpshrase("{");
 		ST_to("D");
 		cmpshrase("}");
 	}
@@ -312,7 +312,7 @@ void CGramAly::L_expression_stat()
 	}
 	else if (m_Shrase.at(m_pos).type == ";")
 	{ 
-		nextchar();
+		cmpshrase(";");
 	}
 	else error(1,"L");
 }
@@ -343,22 +343,22 @@ void CGramAly::N1_bool_expr()
 {
 	if (m_Shrase.at(m_pos).type == ">")
 	{
-		nextchar();
+		cmpshrase(">");
 		ST_to("O");
 	}
 	else if (m_Shrase.at(m_pos).type == "<")
 	{
-		nextchar();
+		cmpshrase("<");
 		ST_to("O");
 	}
 	else if (m_Shrase.at(m_pos).type == ">=")
 	{
-		nextchar();
+		cmpshrase(">=");
 		ST_to("O");
 	}
 	else if (m_Shrase.at(m_pos).type == "<=")
 	{
-		nextchar();
+		cmpshrase("<=");
 		ST_to("O");
 	}
 	else if (m_Shrase.at(m_pos).type == "==")
@@ -368,7 +368,7 @@ void CGramAly::N1_bool_expr()
 	}
 	else if (m_Shrase.at(m_pos).type == "!=")
 	{
-		nextchar();
+		cmpshrase("!=");
 		ST_to("O");
 	}
 	else if (infrfl(m_Shrase.at(m_pos).type, FL_N1)) return;
@@ -387,13 +387,13 @@ void CGramAly::O1_additive_expr()
 {
 	if (m_Shrase.at(m_pos).type == "+")
 	{
-		nextchar();
+		cmpshrase("+");
 		ST_to("P");
 		ST_to("O1");
 	}
 	else if (m_Shrase.at(m_pos).type == "-")
 	{
-		nextchar();
+		cmpshrase("-");
 		ST_to("P");
 		ST_to("O1");
 	}
@@ -413,13 +413,13 @@ void CGramAly::P1_term()
 {
 	if (m_Shrase.at(m_pos).type == "*")
 	{
-		nextchar();
+		cmpshrase("*");
 		ST_to("Q");
 		ST_to("P1");
 	}
 	else if (m_Shrase.at(m_pos).type == "/")
 	{
-		nextchar();
+		cmpshrase("/");
 		ST_to("Q");
 		ST_to("P1");
 	}
@@ -430,17 +430,17 @@ void CGramAly::Q_factor()
 {
 	if (m_Shrase.at(m_pos).type == "(")
 	{
-		nextchar();
+		cmpshrase("(");
 		ST_to("M");
 		cmpshrase(")");
 	}
 	else if (m_Shrase.at(m_pos).type == "ID")
 	{
-		nextchar();
+		cmpshrase("ID");
 	}
 	else if (m_Shrase.at(m_pos).type == "NUM")
 	{
-		nextchar();
+		cmpshrase("NUM");
 	}
 	else error(1,"Q");
 }
@@ -458,13 +458,15 @@ bool CGramAly::infrfl(string shr, vector<string> frfl)
 
 void CGramAly::error(int type, string need)
 {
+	if (type == 1)return;
+
 	cout << "error(" << type << "): [ ";
 	if (m_pos > 0)cout << m_Shrase.at(m_pos - 1).type + " , ";
 	cout << m_Shrase.at(m_pos).type;
 	if (m_pos < m_Shrase.size() - 1) cout << " , " + m_Shrase.at(m_pos + 1).type;
-	cout << " ] ==> you input [ " << m_Shrase.at(m_pos).type;
+	cout << " ] ==> you input [ " << m_Shrase.at(m_pos).type << " ] ";
 	switch (type){
-	case 0:cout << "you input [ " << m_Shrase.at(m_pos).type << " ],but we need:[ " << need << " ]"; break;//È±ÉÙ×Ö·û
+	case 0: cout<<",but we need:[ " << need << " ]"; break;//È±ÉÙ×Ö·û
 	case 1:cout << "error statu: [ " << need << " ]"; break;//½øÈë´íÎó×´Ì¬
 	}
 	cout << " at(" << m_Shrase.at(m_pos).line << ")."<<endl;
