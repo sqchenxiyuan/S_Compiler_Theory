@@ -1,10 +1,35 @@
 #pragma once
+struct GramCode
+{
+	string T1;//操作符
+	int sum=-1;//地址 或者 数
+};
+
+
+struct GramError
+{
+	int type;
+	int line;
+	string input_f;
+	string input;
+	string input_l;
+	string need;
+};
+
 struct GramShrase
 {
 	int line = -1;
 	string type;
 	string word;
 };
+
+struct GramSignal
+{
+	int num;
+	int adress;
+	string name;
+};
+
 
 class CGramAly
 {
@@ -15,9 +40,10 @@ public:
 
 private:
 
+	bool m_error = false;
 	int m_pos=0;//当前读到单词位置
 	vector<GramShrase> m_Shrase;
-
+	vector<GramError> m_Erorr;
 
 	vector<string> FR_D;//{ "if", "while", "for", "write", "read", "{", "(", "ID", "NUM", ";" };
 	vector<string> FR_D1;//{ "if", "while", "for", "write", "read", "{", "(", "ID", "NUM", ";" };
@@ -39,7 +65,7 @@ private:
 
 	void reset();//初始化
 	void nextchar();//下一个单词
-	void end(bool ok);//结束输出
+	void end();//结束输出
 	void cmpshrase(string cmp);
 
 	void ST_to(string st);
@@ -69,6 +95,15 @@ private:
 
 	bool infrfl(string shr, vector<string>fl);//判断是否在Follow集中
 	void error(int type,string need="");
+	void outerror();
+
+	//动作
+	vector<GramCode> m_Code;
+	vector<GramSignal> m_Signal;
+	void wrcode(string code, int num = -1);
+	void outcode();
+
+	void addSignal(string ID);
 
 };
 

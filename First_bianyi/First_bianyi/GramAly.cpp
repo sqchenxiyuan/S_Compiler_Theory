@@ -76,22 +76,26 @@ void CGramAly::Analysis()
 void CGramAly::reset()
 {
 	m_pos = 0;
+	m_Erorr.clear();
+	m_Code.clear();
 }
 
-void CGramAly::end(bool ok){
+void CGramAly::end(){
 		cout << "===================分析结果=====================" << endl;
-	if (ok){
+		if (!m_error){
 		cout << "===================NOERROR!=====================" << endl;
 	}
 	else{
 		cout << "================Have Some Wrong=================" << endl;
+		outerror();
 	}
 	cout << "================================================" << endl;
+
 }
 
 void CGramAly::ST_to(string st)
 {
-
+	//输入需要进入的非终结符，根据输入进入相应的非终结符
 	if (st == "S") S_start();
 	else if (st == "A") A_programe();
 	else if (st == "B") B_declaration_list();
@@ -123,17 +127,17 @@ void CGramAly::S_start()
 	{
 		cmpshrase("#");
 		ST_to("A");
-		if (m_Shrase.at(m_pos).type == "#") end(true);
+		if (m_Shrase.at(m_pos).type == "#"){}
 		else 
 		{
 			error(0, "#");
-			end(false);
 		}
 	}
 	else{
 		error(1, "S");
-		end(false);
 	}
+	wrcode("STOP");
+	end();
 }
 
 void CGramAly::A_programe()
@@ -171,7 +175,12 @@ void CGramAly::C_declaration_stat()
 	if (m_Shrase.at(m_pos).type == "int")
 	{
 		cmpshrase("int");
-		cmpshrase("ID");
+		if (m_Shrase.at(m_pos).type == "ID")
+		{
+			addSignal(m_Shrase.at(m_pos).word);
+			nextchar();
+		}
+		else error(0, "ID");
 		cmpshrase(";");
 	}
 	else error(1,"C");
@@ -458,19 +467,25 @@ bool CGramAly::infrfl(string shr, vector<string> frfl)
 
 void CGramAly::error(int type, string need)
 {
-	if (type == 1)return;
+	m_error = true;
 
-	cout << "error(" << type << "): [ ";
-	if (m_pos > 0)cout << m_Shrase.at(m_pos - 1).type + " , ";
-	cout << m_Shrase.at(m_pos).type;
-	if (m_pos < m_Shrase.size() - 1) cout << " , " + m_Shrase.at(m_pos + 1).type;
-	cout << " ] ==> you input [ " << m_Shrase.at(m_pos).type << " ] ";
-	switch (type){
-	case 0: cout<<",but we need:[ " << need << " ]"; break;//缺少字符
-	case 1:cout << "error statu: [ " << need << " ]"; break;//进入错误状态
-	}
-	cout << " at(" << m_Shrase.at(m_pos).line << ")."<<endl;
+	string input = m_Shrase.at(m_pos).type;
+	string input_f = "", input_l = "";
+	if (m_pos > 0)  input_f = m_Shrase.at(m_pos - 1).type;
+	if (m_pos < m_Shrase.size() - 1) input_l = m_Shrase.at(m_pos + 1).type;
+
+	GramError er;
+	er.type = type;
+	er.line = m_Shrase.at(m_pos).line;
+	er.need = need;
+	er.input_f = input_f;
+	er.input = input;
+	er.input_l = input_l;
+
+	m_Erorr.push_back(er);
 }
+
+
 
 void CGramAly::nextchar()
 {
@@ -489,4 +504,72 @@ void CGramAly::cmpshrase(string cmp)
 {
 	if (m_Shrase.at(m_pos).type == cmp) nextchar();
 	else error(0, cmp );
+}
+
+void CGramAly::outerror()
+{
+	int s = m_Erorr.size();
+	for (int i = 0; i < s; i++)
+	{
+		GramError er = m_Erorr.at(i);
+
+		cout << "error(" << er.type << "): [ ";
+		if (er.input_f!="")cout << er.input_f + " , ";
+		cout << er.input;
+		if (er.input_l != "") cout << " , " + er.input_l;
+		cout << " ] ==> you input [ " << er.input << " ] ";
+		switch (er.type){
+		case 0: cout << ",but we need:[ " << er.need << " ]"; break;//缺少字符
+		case 1:cout << "error statu: [ " << er.need << " ]"; break;//进入错误状态
+		case 10:cout << "this name had already been used!"; break;//字符表重定义
+		}
+		cout << " at(" << er.line << ")." << endl;
+	}
+}
+
+
+void CGramAly::wrcode(string code, int sum)
+{
+	GramCode cd;
+	cd.T1 = code;
+	cd.sum = sum;
+
+	m_Code.push_back(cd);
+}
+
+void CGramAly::outcode()
+{
+	int s = m_Code.size();
+	for (int i = 0; i < s; i++)
+	{
+		GramCode cd = m_Code.at(i);
+
+		cout << cd.T1;
+		if (cd.sum != -1) cout << cd.sum;
+		cout << endl;
+	}
+}
+
+void CGramAly::addSignal(string ID)
+{
+	int s = m_Signal.size();
+	for (int i = s-1; i>= 0; i--)
+	{
+		GramSignal sign = m_Signal.at(i);
+		if (ID == sign.name)
+		{
+			error(10);
+			return;
+		}
+		if (sign.name == "")
+		{
+			continue;
+		}
+	}
+
+	GramSignal sign;
+	sign.name = ID;
+	sign.adress = s;
+
+	m_Signal.push_back(sign);
 }
