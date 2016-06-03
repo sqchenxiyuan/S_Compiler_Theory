@@ -1,0 +1,16 @@
+{
+int input;/*记录输入*/
+int sum;/*记录和*/
+int mult;/*记录乘积*/
+read input;
+sum=0;
+mult=1;
+while(input>0)
+{
+sum=sum+input;
+mult=mult*input;
+read input;
+}
+write sum;
+write input;
+}

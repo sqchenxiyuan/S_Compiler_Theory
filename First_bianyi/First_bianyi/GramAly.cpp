@@ -8,7 +8,7 @@ CGramAly::CGramAly(vector<LexShrase> Shrases)
 	for (int i = 0; i < Shrases.size(); i++)
 	{
 		GramShrase sh;
-		if (sh.type == "NOTES") continue;
+		if (Shrases.at(i).LexType == "NOTES") continue;
 		sh.word = Shrases.at(i).word;
 		sh.type = Shrases.at(i).LexType;
 		sh.line = Shrases.at(i).line;

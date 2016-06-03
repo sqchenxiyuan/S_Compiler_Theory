@@ -1,0 +1,232 @@
+1) <program>→{<declaration_list><statement_list>}
+2) <declaration_list>→<declaration_list><declaration_stat> | ε
+3) <declaration_stat>→int ID;
+4) <statement_list>→<statement_list><statement>| ε
+5) <statement>→ <if_stat>|<while_stat>|<for_stat>|<read_stat>|<write_stat>|< compound_stat > |<expression_stat>
+6) <if_stat>→ if (<expression>) <statement >| if (<expression>) <statement >else < statement >
+7) <while_stat>→ while (<expression>) < statement >
+8) <for_stat>→ for (<expression>;<expression>;<expression>)<statement>
+9) <write_stat>→write <expression>;
+10)<read_stat>→read ID;
+11)<compound_stat>→{<statement_list>}
+12)<expression_stat>→< expression >;|;
+13)<expression>→ ID=<bool_expr>|<bool_expr>
+14)<bool_expr>→<additive_expr> |< additive_expr >(>|<|>=|<=|==|!=)< additive_expr > 
+15)<additive_expr>→< additive_expr>+<term>|< additive_expr>-<term>|< term > 
+16)<term >→< term >*<factor>|< term >/<factor>|< factor >
+17)<factor >→(< expression >)|ID|NUM
+
+
+先用ABC代表各个字符
+
+A:<program>					A→ { B D }
+B:<declaration_list>		B→ B C | ε
+C:<declaration_stat>		C→ int ID ;
+D:<statement_list>			D→ DE | ε
+E:<statement>				R→ F | G | H | I | J | K | L
+F:<if_stat>					F→ if ( M ) E | if ( M ) E else E
+G:<while_stat>				G→ while ( M ) E
+H:<for_stat>				H→ for ( M ; M ; M ) E
+I:<write_stat>				I→ write M ;
+J:<read_stat>				J→ read ID ;
+K:<compound_stat>			K→ { D }
+L:<expression_stat>			L→ M ; | ;
+M:<expression>				M→ ID = N | N
+N:<bool_expr>				N→ O | O > O | O < O | O >= O | O <= O | O == O | O != O 
+O:<additive_expr>			O→ O + P | O - P | P
+P:<term>					P→ P * Q | P / Q | Q
+Q:<factor>					Q→ ( M ) | ID | NUM
+
+
+一、消除左递归
+B→ B C | ε
+----------
+B→ B'
+B'→ C B' | ε
+
+
+D→ DE | ε
+----------
+D→ D'
+D'→ E D' | ε
+
+
+O→ O + P | O - P | P
+--------------------
+O→ P O'
+O'→ + P O' | - P O' | ε
+
+
+P→ P * Q | P / Q | Q
+--------------------
+P→ Q P'
+P'→ * Q P' | / Q P' | ε
+
+二、提取左公因子
+
+N→ O | O > O | O < O | O >= O | O <= O | O == O | O != O 
+---------------------------------------------------------
+N→ O N'
+N'→ > O | < O | >= O | <= O | == O | != O | ε
+
+
+F→ if ( M ) E | if ( M ) E else E
+----------------------------------
+F→ if ( M ) E F'
+F'→ else E | ε
+但是First(F')={ else , ε }
+	Follow(F')=Follow(F)=Follow(E)={else}∪....
+	First(F') ∩ Follow(F') ≠ 空集    
+所以不能提取！
+解决方法：判断完 if ( M ) E 后 判断是否下一个字符为else，是则继续判断else E，不是则跳出
+
+
+三、
+M→ ID = N | N
+First(ID = N)=ID
+First(N)=First(O)=First(P)=First(Q)={(,ID,NUM}
+First(ID = N)∩First(N)≠ 空集
+但为了避免改造文法，保持文法的可读性，采用超前读取一个字符的方式，判断下下个字符是否为=，是则采用M→ID = N，不是则采用M→N。
+
+
+改造后文法:
+A:<program>					A→ { B D }
+First({ B D })={ { };
+First(A)={ { };
+Follow(A)={#};
+
+B:<declaration_list>		B→ B'
+First(B')={ int , ε }
+First(B)={ int , ε };
+Follow(B)=(First(D)-ε)U{ } }={ if , while , for , write , read , { , ( , ID , NUM , ; , } }
+
+B':<declaration_list_>		B'→ C B' | ε
+First(C B')=First(C)={int}
+First(B')={ int , ε }
+Follow(B')=Follow(B)={ if , while , for , write , read , { , } , ( , ID , NUM , ; }
+
+
+C:<declaration_stat>		C→ int ID ;
+First(int ID ;)={int}
+First(C)={int}
+
+
+D:<statement_list>			D→ D'
+First(D)={ if , while , for , write , read , { , ( , ID , NUM , ; , ε }
+Follow(D)={ } }
+
+
+D':<statement_list_>			D'→ E D' | ε
+First(ED')={ if , while , for , write , read , { , ( , ID , NUM , ; }
+First(D')={ if , while , for , write , read , { , ( , ID , NUM , ; , ε }
+Follow(D')=Follow(D)={ } }
+
+E:<statement>				R→ F | G | H | I | J | K | L
+First(F)={if}
+First(G)={while}
+First(H)={for}
+First(I)={write}
+First(J)={read}
+First(K)={ { }
+First(L)={ ( , ID , NUM , ; }
+First(E)={ if , while , for , write , read , { , ( , ID , NUM , ; }
+
+
+F:<if_stat>					F→ if ( M ) E | if ( M ) E else E 		
+First(if(M)E)={if}		解决方法：判断完 if ( M ) E 后 判断是否下一个字符为else，是则继续判断else E，不是则跳出
+First(F)={if}
+
+G:<while_stat>				G→ while ( M ) E
+First(while(M)E)={while}
+First(G)={while}
+
+H:<for_stat>				H→ for ( M ; M ; M ) E
+First(for(M;M;M)E)={for}
+First(H)={for}
+
+
+I:<write_stat>				I→ write M ;
+First(write E ;)={write}
+First(I)={write}
+
+J:<read_stat>				J→ read ID ;
+First(read ID ;)={read}
+First(J)={read}
+
+K:<compound_stat>			K→ { D }
+First({ D })={ { }
+First(K)={ { }
+
+L:<expression_stat>			L→ M ; | ;
+First(M;)=First(M){ ( , ID , NUM }
+First(;)={;}
+First(L)=First(M)-U{;}={ ( , ID , NUM , ; }
+
+
+M:<expression>				M→ ID = N | N
+First(ID = N)=First(ID)					采用超前读取一个字符的方式，判断下下个字符是否为=，是则采用M→ID = N，不是则采用M→N。
+First(N)={ ( , ID , NUM }
+First(M)={ ( , ID , NUM }
+Follow(M)={ ) , ; }
+
+N:<bool_expr>				N→ O N'
+First(O N')={ ( , ID , NUM }
+First(N)={ ( , ID , NUM }
+Follow(N)=Follow(M)={ ) , ; }
+
+
+N':<bool_expr_>				N'→ > O | < O | >= O | <= O | == O | != O | ε
+First(> O)={ > }
+First(< O)={ < }
+First(>= O)={ >= }
+First(<= O)={ <= }
+First(== O)={ == }
+First(!= O)={ != }
+First(N')={ > , < , >= , <= , == , != , ε }
+Follow(N')=Follow(N)={ ) , ; }
+
+
+O:<additive_expr>			O→ P O'
+First(P O')={ ( , ID , NUM }
+First(O)={ ( , ID , NUM }
+
+
+O':<additive_expr_>			O'→ + P O' | - P O' | ε
+First(+ P O')={ + }
+First(- P O')={ - }
+First(O')={ + , - , ε }
+Follow(O')=Follow(O)=(First(N')- ε)UFollow(N)={ > , < , >= , <= , == , != , ) , ; }
+
+P:<term>					P→ Q P'
+First(Q P')={ ( , ID , NUM }
+First(P)={ ( , ID , NUM }
+Follow(P)=(First(O')- ε)UFollow(O')={ + , - }U{ > , < , >= , <= , == , != , ) , ; }
+			={ + , - , > , < , >= , <= , == , != , ) , ; }
+
+
+P':<term_>					P'→ * Q P' | / Q P' | ε
+First(* Q P')={ * }
+First(/ Q P')={ / }
+First(P')={ * , / , ε }
+Follow(P')=Follow(P)={ + , - , > , < , >= , <= , == , != , ) , ; }
+
+
+Q:<factor>					Q→ ( M ) | ID | NUM
+First(( M ))={(}
+First(ID)={ID}
+First(NUM)={NUM}
+First(Q)={ ( , ID , NUM }
+
+
+
+运行问题：
+1、当;匹配失败后无限递归，造成卡死
+解决：重查代码  发现M的First匹配出错   修改后正常
+2、for循环 ; 无法匹配
+解决：重查代码  follow集未加载成功   修改后正常
+3、<compound_stat>的}无法正常匹配
+解决：重查代码  匹配}写成;  
+4、无法匹配write
+解决：重查代码  write写错了   修改后正常
+5、write后面匹配}失败
+解决：重查代码  write表达式错误   修改后正常
